@@ -1,0 +1,45 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+#include "precompiled.h"
+
+void HostageRetreatState::__MAKE_VHOOK(OnEnter)(CHostageImprov *improv)
+{
+	improv->Walk();
+	improv->MoveTo(improv->GetEntity()->m_vStart);
+}
+
+void HostageRetreatState::__MAKE_VHOOK(OnUpdate)(CHostageImprov *improv)
+{
+	if (improv->IsAtHome())
+	{
+		improv->Stop();
+		improv->Idle();
+		return;
+	}
+
+	CBasePlayer *player = improv->GetClosestVisiblePlayer(UNASSIGNED);
+
+	if (player != NULL)
+	{
+		const float farRange = 400.0f;
+		if ((player->pev->origin - improv->GetCentroid()).IsLengthGreaterThan(farRange))
+		{
+			if (player->m_iTeam == CT && !improv->IsScared())
+			{
+				improv->Stop();
+				improv->Idle();
+				return;
+			}
+		}
+	}
+
+	if (improv->IsScared() && improv->GetScareIntensity() == CHostageImprov::TERRIFIED)
+		improv->Run();
+	else
+		improv->Walk();
+}
+
+void HostageRetreatState::__MAKE_VHOOK(OnExit)(CHostageImprov *improv)
+{
+	;
+}
