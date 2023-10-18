@@ -13,10 +13,12 @@
 *
 ****/
 
-#include "stdafx.h"
+#include "extdll.h"
+#include "util.h"
 #include "cbase.h"
 #include "player.h"
 #include "weapons.h"
+#include "wpn_fiveseven.h"
 
 enum fiveseven_e
 {
@@ -65,7 +67,7 @@ int CFiveSeven::GetItemInfo(ItemInfo *p)
 {
 	p->pszName = STRING(pev->classname);
 	p->pszAmmo1 = "57mm";
-	p->iMaxAmmo1 = _57MM_MAX_CARRY;
+	p->iMaxAmmo1 = MAX_AMMO_57MM;
 	p->pszAmmo2 = NULL;
 	p->iMaxAmmo2 = -1;
 	p->iMaxClip = FIVESEVEN_MAX_CLIP;

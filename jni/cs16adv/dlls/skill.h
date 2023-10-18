@@ -1,3 +1,4 @@
+
 /***
 *
 *	Copyright (c) 1996-2002, Valve LLC. All rights reserved.
@@ -12,6 +13,12 @@
 *   without written permission from Valve LLC.
 *
 ****/
+
+#ifndef SKILL_H
+#define SKILL_H
+#ifdef _WIN32
+#pragma once
+#endif
 
 struct skilldata_t
 {
@@ -109,3 +116,5 @@ extern DLL_GLOBAL int g_iSkillLevel;
 #define SKILL_EASY 1
 #define SKILL_MEDIUM 2
 #define SKILL_HARD 3
+
+#endif // SKILL_H

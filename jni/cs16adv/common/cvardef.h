@@ -34,10 +34,11 @@ typedef struct cvar_s
 	struct cvar_s *next;
 } cvar_t;
 
-
-typedef int qboolean;
-
+// Moved to engine/common/crtlib.h
+/*
 // WARNING: Private structure from Xash3D Engine. Use with caution
+#ifndef STDLIB_H
+typedef int qboolean;
 typedef struct convar_s
 {
 	// this part shared with cvar_t
@@ -54,4 +55,6 @@ typedef struct convar_s
 	char		*latched_string;	// for CVAR_LATCH vars
 	char		*description;	// variable descrition info
 } convar_t;
+#endif
+*/
 #endif

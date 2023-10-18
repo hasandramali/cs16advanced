@@ -13,10 +13,12 @@
 *
 ****/
 
-#include "stdafx.h"
+#include "extdll.h"
+#include "util.h"
 #include "cbase.h"
 #include "player.h"
 #include "weapons.h"
+#include "wpn_g3sg1.h"
 
 enum g3sg1_e
 {
@@ -60,7 +62,7 @@ int CG3SG1::GetItemInfo(ItemInfo *p)
 {
 	p->pszName = STRING(pev->classname);
 	p->pszAmmo1 = "762Nato";
-	p->iMaxAmmo1 = _762NATO_MAX_CARRY;
+	p->iMaxAmmo1 = MAX_AMMO_762NATO;
 	p->pszAmmo2 = NULL;
 	p->iMaxAmmo2 = -1;
 	p->iMaxClip = G3SG1_MAX_CLIP;
@@ -68,7 +70,7 @@ int CG3SG1::GetItemInfo(ItemInfo *p)
 	p->iPosition = 3;
 	p->iId = m_iId = WEAPON_G3SG1;
 	p->iFlags = 0;
-	p->iWeight = WEAPON_G3SG1;
+	p->iWeight = G3SG1_WEIGHT;
 
 	return 1;
 }

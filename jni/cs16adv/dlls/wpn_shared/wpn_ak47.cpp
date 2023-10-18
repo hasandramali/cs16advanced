@@ -13,10 +13,12 @@
 *
 ****/
 
-#include "stdafx.h"
+#include "extdll.h"
+#include "util.h"
 #include "cbase.h"
 #include "player.h"
 #include "weapons.h"
+#include "wpn_ak47.h"
 
 enum ak47_e
 {
@@ -64,7 +66,7 @@ int CAK47::GetItemInfo(ItemInfo *p)
 {
 	p->pszName = STRING(pev->classname);
 	p->pszAmmo1 = "762Nato";
-	p->iMaxAmmo1 = _762NATO_MAX_CARRY;
+	p->iMaxAmmo1 = MAX_AMMO_762NATO;
 	p->pszAmmo2 = NULL;
 	p->iMaxAmmo2 = -1;
 	p->iMaxClip = AK47_MAX_CLIP;

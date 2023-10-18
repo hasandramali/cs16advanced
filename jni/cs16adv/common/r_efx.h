@@ -21,22 +21,22 @@
 #endif
 
 // particle_t
-#if !defined( PARTICLEDEFH )  
+#if !defined( PARTICLEDEF_H )  
 #include "particledef.h"
 #endif
 
 // BEAM
-#if !defined( BEAMDEFH )
+#if !defined( BEAMDEF_H )
 #include "beamdef.h"
 #endif
 
 // dlight_t
-#if !defined ( DLIGHTH )
+#if !defined ( DLIGHT_H )
 #include "dlight.h"
 #endif
 
 // cl_entity_t
-#if !defined( CL_ENTITYH )
+#if !defined( CL_ENTITY_H )
 #include "cl_entity.h"
 #endif
 
@@ -193,6 +193,7 @@ struct efx_api_s
 	void		( *R_GetPackedColor )			( short *packed, short color );
 	short		( *R_LookupColor )				( unsigned char r, unsigned char g, unsigned char b );
 	void		( *R_DecalRemoveAll )			( int textureIndex ); //textureIndex points to the decal index in the array, not the actual texture index.
+	void		(*R_FireCustomDecal)( int textureIndex, int entity, int modelIndex, float *position, int flags, float scale );
 };
 
 extern efx_api_t efx;

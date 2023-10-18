@@ -13,10 +13,12 @@
 *
 ****/
 
-#include "stdafx.h"
+#include "extdll.h"
+#include "util.h"
 #include "cbase.h"
 #include "player.h"
 #include "weapons.h"
+#include "wpn_sg550.h"
 
 enum sg550_e
 {
@@ -60,7 +62,7 @@ int CSG550::GetItemInfo(ItemInfo *p)
 {
 	p->pszName = STRING(pev->classname);
 	p->pszAmmo1 = "556Nato";
-	p->iMaxAmmo1 = _556NATO_MAX_CARRY;
+	p->iMaxAmmo1 = MAX_AMMO_556NATO;
 	p->pszAmmo2 = NULL;
 	p->iMaxAmmo2 = -1;
 	p->iMaxClip = SG550_MAX_CLIP;
@@ -68,7 +70,7 @@ int CSG550::GetItemInfo(ItemInfo *p)
 	p->iPosition = 16;
 	p->iId = m_iId = WEAPON_SG550;
 	p->iFlags = 0;
-	p->iWeight = WEAPON_SG550;
+	p->iWeight = SG550_WEIGHT;
 
 	return 1;
 }

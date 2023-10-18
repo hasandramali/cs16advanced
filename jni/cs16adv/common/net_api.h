@@ -5,8 +5,8 @@
 // $NoKeywords: $
 //=============================================================================
 
-#if !defined( NET_APIH )
-#define NET_APIH
+#if !defined( NET_API_H )
+#define NET_API_H
 #ifdef _WIN32
 #ifndef __MINGW32__
 #pragma once
@@ -27,6 +27,7 @@
 //  kill the request hook after receiving the first response
 #define FNETAPI_MULTIPLE_RESPONSE ( 1<<0 )
 
+struct net_response_s;
 typedef void ( *net_api_response_func_t ) ( struct net_response_s *response );
 
 #define NET_SUCCESS						( 0 )
@@ -98,4 +99,4 @@ typedef struct net_api_s
 
 extern net_api_t netapi;
 
-#endif // NET_APIH
+#endif // NET_API_H

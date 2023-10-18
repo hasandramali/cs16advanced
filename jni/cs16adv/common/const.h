@@ -1,9 +1,9 @@
 /***
 *
 *	Copyright (c) 1996-2002, Valve LLC. All rights reserved.
-*	
-*	This product contains software technology licensed from Id 
-*	Software, Inc. ("Id Technology").  Id Technology (c) 1996 Id Software, Inc. 
+*
+*	This product contains software technology licensed from Id
+*	Software, Inc. ("Id Technology").  Id Technology (c) 1996 Id Software, Inc.
 *	All Rights Reserved.
 *
 *   Use, distribution, and modification of this source code and/or resulting
@@ -124,7 +124,7 @@
 
 // entity flags
 #define EFLAG_SLERP			1	// do studio interpolation of this entity
-		
+
 //
 // temp entity events
 //
@@ -532,6 +532,9 @@
 #define TEFIRE_FLAG_ALPHA	8 // if set, sprite is rendered alpha blended at 50% else, opaque
 #define TEFIRE_FLAG_PLANAR	16 // if set, all fire sprites have same initial Z instead of randomly filling a cube. 
 
+// From HLSDK 2.4
+#define TEFIRE_FLAG_ADDITIVE	32 // if set, sprite is rendered non-opaque with additive
+
 #define TE_PLAYERATTACHMENT		124	// attaches a TENT to a player (this is a high-priority tent)
 // byte (entity index of player)
 // coord (vertical offset) ( attachment origin.z = player origin.z + vertical offset )
@@ -602,7 +605,6 @@
 
 #define CONTENTS_LADDER		-16
 
-#define CONTENT_FOG			-19
 #define CONTENT_FLYFIELD		-17
 #define CONTENT_GRAVITY_FLYFIELD	-18
 #define CONTENT_FOG			-19
@@ -624,6 +626,9 @@
 #define CHAN_STATIC			6	// allocate channel from the static area 
 #define CHAN_NETWORKVOICE_BASE	7	// voice data coming across the network
 #define CHAN_NETWORKVOICE_END		500	// network voice data reserves slots (CHAN_NETWORKVOICE_BASE through CHAN_NETWORKVOICE_END).
+
+// From HLSDK 2.4
+#define CHAN_BOT					501 // channel used for bot chatter
 
 // attenuation values
 #define ATTN_NONE			0
@@ -692,8 +697,8 @@
 #define TE_BOUNCE_SHOTSHELL		2
 
 // Rendering constants
-enum 
-{	
+enum
+{
 	kRenderNormal,		// src
 	kRenderTransColor,		// c*a+dest*(1-a)
 	kRenderTransTexture,	// src*a+dest*(1-a)
@@ -703,21 +708,21 @@ enum
 	kRenderWorldGlow		// Same as kRenderGlow but not fixed size in screen space
 };
 
-enum 
-{	
-	kRenderFxNone = 0, 
-	kRenderFxPulseSlow, 
-	kRenderFxPulseFast, 
-	kRenderFxPulseSlowWide, 
-	kRenderFxPulseFastWide, 
-	kRenderFxFadeSlow, 
-	kRenderFxFadeFast, 
-	kRenderFxSolidSlow, 
-	kRenderFxSolidFast, 	   
-	kRenderFxStrobeSlow, 
-	kRenderFxStrobeFast, 
-	kRenderFxStrobeFaster, 
-	kRenderFxFlickerSlow, 
+enum
+{
+	kRenderFxNone = 0,
+	kRenderFxPulseSlow,
+	kRenderFxPulseFast,
+	kRenderFxPulseSlowWide,
+	kRenderFxPulseFastWide,
+	kRenderFxFadeSlow,
+	kRenderFxFadeFast,
+	kRenderFxSolidSlow,
+	kRenderFxSolidFast,
+	kRenderFxStrobeSlow,
+	kRenderFxStrobeFast,
+	kRenderFxStrobeFaster,
+	kRenderFxFlickerSlow,
 	kRenderFxFlickerFast,
 	kRenderFxNoDissipation,
 	kRenderFxDistort,			// Distort/scale/translate flicker
@@ -728,20 +733,13 @@ enum
 	kRenderFxClampMinScale		// Keep this sprite from getting very small (SPRITES only!)
 };
 
+#include "xash3d_types.h"
+
 typedef int		func_t;
 typedef int		string_t;
 
-typedef unsigned char	byte;
+//typedef unsigned char	byte;
 typedef unsigned short	word;
-
-#undef true
-#undef false
-
-#ifndef __cplusplus
-typedef enum { false, true }	qboolean;
-#else 
-typedef int qboolean;
-#endif
 
 typedef struct
 {

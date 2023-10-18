@@ -13,10 +13,12 @@
 *
 ****/
 
-#include "stdafx.h"
+#include "extdll.h"
+#include "util.h"
 #include "cbase.h"
 #include "player.h"
 #include "weapons.h"
+#include "wpn_smokegrenade.h"
 
 enum smokegrenade_e
 {
@@ -60,7 +62,7 @@ int CSmokeGrenade::GetItemInfo(ItemInfo *p)
 {
 	p->pszName = STRING(pev->classname);
 	p->pszAmmo1 = "SmokeGrenade";
-	p->iMaxAmmo1 = SMOKEGRENADE_MAX_CARRY;
+	p->iMaxAmmo1 = MAX_AMMO_SMOKEGRENADE;
 	p->pszAmmo2 = NULL;
 	p->iMaxAmmo2 = -1;
 	p->iMaxClip = WEAPON_NOCLIP;

@@ -13,10 +13,12 @@
 *
 ****/
 
-#include "stdafx.h"
+#include "extdll.h"
+#include "util.h"
 #include "cbase.h"
 #include "player.h"
 #include "weapons.h"
+#include "wpn_m4a1.h"
 
 enum m4a1_e
 {
@@ -77,7 +79,7 @@ int CM4A1::GetItemInfo(ItemInfo *p)
 {
 	p->pszName = STRING(pev->classname);
 	p->pszAmmo1 = "556Nato";
-	p->iMaxAmmo1 = _556NATO_MAX_CARRY;
+	p->iMaxAmmo1 = MAX_AMMO_556NATO;
 	p->pszAmmo2 = NULL;
 	p->iMaxAmmo2 = -1;
 	p->iMaxClip = M4A1_MAX_CLIP;

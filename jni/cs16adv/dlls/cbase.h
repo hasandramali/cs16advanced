@@ -13,6 +13,12 @@
 *
 ****/
 
+#ifndef CBASE_H
+#define CBASE_H
+#ifdef _WIN32
+#pragma once
+#endif
+
 #define FCAP_CUSTOMSAVE 0x00000001
 #define FCAP_ACROSS_TRANSITION 0x00000002
 #define FCAP_MUST_SPAWN 0x00000004
@@ -23,7 +29,6 @@
 #define FCAP_DIRECTIONAL_USE 0x00000040
 #define FCAP_MASTER 0x00000080
 #define FCAP_FORCE_TRANSITION 0x00000080
-#include "port.h"
 
 #include "saverestore.h"
 #include "schedule.h"
@@ -39,8 +44,8 @@
 
 edict_t *CREATE_NAMED_ENTITY(int iClass);
 void REMOVE_ENTITY(edict_t *e);
-void CONSOLE_ECHO(char *pszMsg, ...);
-void CONSOLE_ECHO_LOGGED(char *pszMsg, ...);
+void CONSOLE_ECHO(const char *pszMsg, ...);
+void CONSOLE_ECHO_LOGGED(const char *pszMsg, ...);
 
 #include "exportdef.h"
 
@@ -71,10 +76,6 @@ void AddEntityHashValue(struct entvars_s *pev, const char *value, hash_types_e f
 void RemoveEntityHashValue(struct entvars_s *pev, const char *value, hash_types_e fieldType);
 void printEntities(void);
 void loopPerformance(void);
-#ifdef CLIENT_DLL
-void Broadcast( const char*, int );
-#endif
-
 
 extern int DispatchSpawn(edict_t *pent);
 extern void DispatchKeyValue(edict_t *pentKeyvalue, KeyValueData *pkvd);
@@ -102,10 +103,6 @@ USE_TYPE;
 
 extern void FireTargets(const char *targetName, CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
 
-typedef void (CBaseEntity::*BASEPTR)(void);
-typedef void (CBaseEntity::*ENTITYFUNCPTR)(CBaseEntity *pOther);
-typedef void (CBaseEntity::*USEPTR)(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
-
 #define CLASS_NONE 0
 #define CLASS_MACHINE 1
 #define CLASS_PLAYER 2
@@ -127,46 +124,66 @@ class CBaseEntity;
 class CBaseMonster;
 class CBasePlayerItem;
 class CSquadMonster;
+class CBasePlayer;
 
 #define SF_NORESPAWN (1<<30)
 
-class EHANDLE
+#include "ehandle.h"
+
+#include "ruleof350.h"
+#include <functional> // why not use c++11 std::function?
+
+class CBaseEntity : ruleof350::unique
 {
+#ifndef CLIENT_DLL
 public:
-	edict_t *Get(void);
-	edict_t *Set(edict_t *pent);
+	static void CheckEntityDestructor(CBaseEntity *pEntity);
+	CBaseEntity();
 
-	operator int ();
-	operator CBaseEntity *();
+	virtual ~CBaseEntity();
+#else
+public:
+	CBaseEntity() = default;
+	~CBaseEntity() = default;
+#endif
 
-	CBaseEntity *operator = (CBaseEntity *pEntity);
-	CBaseEntity *operator ->();
-
-private:
-	edict_t *m_pent;
-	int m_serialnumber;
-};
-
-class CBaseEntity
-{
 public:
 	virtual void Spawn(void) {}
 	virtual void Precache(void) {}
 	virtual void Restart(void) {}
 	virtual void KeyValue(KeyValueData *pkvd) { pkvd->fHandled = FALSE; }
+#ifdef CLIENT_DLL
 	virtual int Save(CSave &save) { return 1; }
 	virtual int Restore(CRestore &restore) { return 1; }
+#else 
+	virtual int Save(CSave &save);
+	virtual int Restore(CRestore &restore);
+#endif
 	virtual int ObjectCaps(void) { return FCAP_ACROSS_TRANSITION; }
 	virtual void Activate(void) {}
+#ifdef CLIENT_DLL
 	virtual void SetObjectCollisionBox(void) {}
+#else 
+	virtual void SetObjectCollisionBox(void);
+#endif
 	virtual int Classify(void) { return CLASS_NONE; }
 	virtual void DeathNotice(entvars_t *pevChild) {}
-	virtual void TraceAttack(entvars_t *pevAttacker, float flDamage, const Vector &vecDir, TraceResult *ptr, int bitsDamageType) { }
+#ifdef CLIENT_DLL
+	virtual void TraceAttack(entvars_t *pevAttacker, float flDamage, Vector vecDir, TraceResult *ptr, int bitsDamageType) {}
 	virtual int TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType) { return 1; }
 	virtual int TakeHealth(float flHealth, int bitsDamageType) { return 1; }
+#else 
+	virtual void TraceAttack(entvars_t *pevAttacker, float flDamage, Vector vecDir, TraceResult *ptr, int bitsDamageType);
+	virtual int TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType);
+	virtual int TakeHealth(float flHealth, int bitsDamageType);
+#endif
 	virtual void Killed(entvars_t *pevAttacker, int iGib);
 	virtual int BloodColor(void) { return DONT_BLEED; }
-	virtual void TraceBleed(float flDamage, Vector vecDir, TraceResult *ptr, int bitsDamageType) { }
+#ifdef CLIENT_DLL
+	virtual void TraceBleed(float flDamage, Vector vecDir, TraceResult *ptr, int bitsDamageType) {}
+#else 
+	virtual void TraceBleed(float flDamage, Vector vecDir, TraceResult *ptr, int bitsDamageType);
+#endif
 	virtual BOOL IsTriggered(CBaseEntity *pActivator) { return TRUE; }
 	virtual CBaseMonster *MyMonsterPointer(void) { return NULL; }
 	virtual CSquadMonster *MySquadMonsterPointer(void) { return NULL; }
@@ -175,11 +192,16 @@ public:
 	virtual void AddPointsToTeam(int score, BOOL bAllowNegativeScore) {}
 	virtual BOOL AddPlayerItem(CBasePlayerItem *pItem) { return 0; }
 	virtual BOOL RemovePlayerItem(CBasePlayerItem *pItem) { return 0; }
-	virtual int GiveAmmo(int iAmount, char *szName, int iMax) { return -1; }
+	virtual int GiveAmmo(int iAmount, const char *szName, int iMax) { return -1; } // TODO : prevent from wrong override...
+	//virtual int GiveAmmo(int iAmount, char *szName, int iMax) final = delete;
 	virtual float GetDelay(void) { return 0; }
 	virtual int IsMoving(void) { return pev->velocity != g_vecZero; }
 	virtual void OverrideReset(void) {}
+#ifdef CLIENT_DLL
 	virtual int DamageDecal(int bitsDamageType) { return -1; }
+#else 
+	virtual int DamageDecal(int bitsDamageType);
+#endif
 	virtual void SetToggleState(int state) {}
 	virtual void StartSneaking(void) {}
 	virtual void StopSneaking(void) {}
@@ -189,11 +211,20 @@ public:
 	virtual BOOL IsBSPModel(void) { return pev->solid == SOLID_BSP || pev->movetype == MOVETYPE_PUSHSTEP; }
 	virtual BOOL ReflectGauss(void) { return IsBSPModel() && !pev->takedamage; }
 	virtual BOOL HasTarget(string_t targetname) { return FStrEq(STRING(targetname), STRING(pev->targetname)); }
+#ifdef CLIENT_DLL
 	virtual BOOL IsInWorld(void) { return TRUE; }
+#else 
+	virtual BOOL IsInWorld(void);
+#endif
 	virtual BOOL IsPlayer(void) { return FALSE; }
 	virtual BOOL IsNetClient(void) { return FALSE; }
 	virtual const char *TeamID(void) { return ""; }
+#ifdef CLIENT_DLL
 	virtual CBaseEntity *GetNextTarget(void) { return 0; }
+#else 
+	virtual CBaseEntity *GetNextTarget(void);
+#endif
+
 	virtual void Think(void) { if (m_pfnThink) (this->*m_pfnThink)(); }
 	virtual void Touch(CBaseEntity *pOther) { if (m_pfnTouch) (this->*m_pfnTouch)(pOther); }
 	virtual void Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value) { if (m_pfnUse) (this->*m_pfnUse)(pActivator, pCaller, useType, value); }
@@ -206,11 +237,20 @@ public:
 	virtual Vector EarPosition(void) { return pev->origin + pev->view_ofs; }
 	virtual Vector BodyTarget(const Vector &posSrc) { return Center(); }
 	virtual int Illumination(void) { return GETENTITYILLUM(ENT(pev)); }
+#ifdef CLIENT_DLL
 	virtual BOOL FVisible(CBaseEntity *pEntity) { return FALSE; }
 	virtual BOOL FVisible(const Vector &vecOrigin) { return FALSE; }
+#else 
+	virtual BOOL FVisible(CBaseEntity *pEntity);
+	virtual BOOL FVisible(const Vector &vecOrigin);
+#endif
 
 public:
-	void EXPORT SUB_Remove(void) { }
+#ifdef CLIENT_DLL
+	void EXPORT SUB_Remove(void) {}
+#else 
+	void EXPORT SUB_Remove(void);
+#endif
 	void EXPORT SUB_DoNothing(void);
 	void EXPORT SUB_StartFadeOut(void);
 	void EXPORT SUB_FadeOut(void);
@@ -219,16 +259,16 @@ public:
 
 public:
 	void UpdateOnRemove(void);
-	int ShouldToggle(USE_TYPE useType, BOOL currentState) { return 0; }
+	int ShouldToggle(USE_TYPE useType, BOOL currentState);
 	void FireBullets(ULONG cShots, Vector vecSrc, Vector vecDirShooting, Vector vecSpread, float flDistance, int iBulletType, int iTracerFreq = 4, int iDamage = 0, entvars_t *pevAttacker = NULL);
 	Vector FireBullets3(Vector vecSrc, Vector vecDirShooting, float flSpread, float flDistance, int iPenetration, int iBulletType, int iDamage, float flRangeModifier, entvars_t *pevAttacker, bool bPistol, int shared_rand = 0);
-	int Intersects(CBaseEntity *pOther) { return 0; }
-	void MakeDormant(void) { }
-	int IsDormant(void) { return 0; }
+	int Intersects(CBaseEntity *pOther);
+	void MakeDormant(void);
+	int IsDormant(void);
 	BOOL IsLockedByMaster(void) { return FALSE; }
 
 public:
-	static CBaseEntity *Instance(edict_t *pent) { return (CBaseEntity *)GET_PRIVATE(pent ? pent : ENT(0)); }
+	static CBaseEntity *Instance(edict_t *pent) { return GET_PRIVATE<CBaseEntity>(pent ? pent : ENT(0)); }
 	static CBaseEntity *Instance(entvars_t *instpev) { return Instance(ENT(instpev)); }
 	static CBaseEntity *Instance(int inst_eoffset) { return Instance(ENT(inst_eoffset)); }
 
@@ -252,68 +292,73 @@ public:
 		return NULL;
 	}
 
-#if defined(_DEBUG) && !defined(CLIENT_DLL)
-	void FunctionCheck(void *pFunction, const char *name)
-	{
-		if (pFunction && !NAME_FOR_FUNCTION((unsigned long)(pFunction)))
-		{ 
-			ALERT(at_error, "No EXPORT: %s:%s (%08lx)\n", STRING(pev->classname), name, (unsigned long)pFunction);
-			UTIL_LogPrintf("No EXPORT: %s:%s (%08lx)\n", STRING(pev->classname), name, (unsigned long)pFunction);
-		}
-		else
-		{
-			if (pFunction)
-				UTIL_LogPrintf("Has EXPORT: %s:%s (%08lx)\n", STRING(pev->classname), name, (unsigned long)pFunction);
-		}
-	}
-
-	BASEPTR ThinkSet(BASEPTR func, const char *name)
-	{
-		m_pfnThink = func;
-		FunctionCheck((void *)*((int *)((char *)this + (offsetof(CBaseEntity, m_pfnThink)))), name);
-		return func;
-	}
-
-	ENTITYFUNCPTR TouchSet(ENTITYFUNCPTR func, const char *name)
-	{
-		m_pfnTouch = func;
-		FunctionCheck((void *)*((int *)((char *)this + (offsetof(CBaseEntity, m_pfnTouch)))), name);
-		return func;
-	}
-
-	USEPTR UseSet(USEPTR func, const char *name)
-	{
-		m_pfnUse = func;
-		FunctionCheck((void *)*((int *)((char *)this + (offsetof(CBaseEntity, m_pfnUse)))), name);
-		return func;
-	}
-
-	ENTITYFUNCPTR BlockedSet(ENTITYFUNCPTR func, const char *name)
-	{
-		m_pfnBlocked = func;
-		FunctionCheck((void *)*((int *)((char *)this + (offsetof(CBaseEntity, m_pfnBlocked)))), name);
-		return func;
-	}
-#endif
-
-	static CBaseEntity *Create(char *szName, const Vector &vecOrigin, const Vector &vecAngles, edict_t *pentOwner = NULL) { return NULL; }
+	static CBaseEntity *Create(const char *szName, const Vector &vecOrigin, const Vector &vecAngles, edict_t *pentOwner = NULL);
 
 	edict_t *edict(void) { return ENT(pev); }
 	EOFFSET eoffset(void) { return OFFSET(pev); }
 	int entindex(void) { return ENTINDEX(edict()); }
 
-public:
-	void *operator new(size_t stAllocateBlock, entvars_t *newpev) { return ALLOC_PRIVATE(ENT(newpev), stAllocateBlock); }
 
-#if defined(_MSC_VER) && _MSC_VER >= 1200
-	void operator delete(void *pMem, entvars_t *pev) { pev->flags |= FL_KILLME; }
+#ifndef CLIENT_DLL
+public:
+	// cbase_memory.cpp
+
+	// allocate memory for CBaseEntity with given pev
+	void *operator new(size_t stAllocateBlock, entvars_t *newpev) noexcept;
+	// free pev  when constructor throws, etc...
+	void operator delete(void *pMem, entvars_t *pev);
+	// automatically allocate pev
+	void *operator new(size_t stAllocateBlock);
+	// auto remove entity...
+	void operator delete(void *pMem);
 #endif
+public:
+	template <typename T>
+	auto SetThink(void (T::*pfn)()) -> typename std::enable_if<std::is_base_of<CBaseEntity, T>::value>::type
+	{
+		m_pfnThink = static_cast<void (CBaseEntity::*)()>(pfn);
+	}
+	void SetThink(std::nullptr_t null)
+	{
+		m_pfnThink = null;
+	}
+	template <typename T>
+	auto SetTouch(void (T::*pfn)(CBaseEntity *pOther)) -> typename std::enable_if<std::is_base_of<CBaseEntity, T>::value>::type
+	{
+		m_pfnTouch = static_cast<void (CBaseEntity::*)(CBaseEntity *)>(pfn);
+	}
+	void SetTouch(std::nullptr_t null)
+	{
+		m_pfnThink = null;
+	}
+	template <typename T>
+	auto SetUse(void (T::*pfn)(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)) -> typename std::enable_if<std::is_base_of<CBaseEntity, T>::value>::type
+	{
+		m_pfnUse = static_cast<void (CBaseEntity::*)(CBaseEntity *, CBaseEntity *, USE_TYPE, float)>(pfn);
+	}
+	void SetUse(std::nullptr_t null)
+	{
+		m_pfnThink = null;
+	}
+	template <typename T>
+	auto SetBlocked(void (T::*pfn)(CBaseEntity *pOther)) -> typename std::enable_if<std::is_base_of<CBaseEntity, T>::value>::type
+	{
+		m_pfnBlocked = static_cast<void (CBaseEntity::*)(CBaseEntity *)>(pfn);
+	}
+	void SetBlocked(std::nullptr_t null)
+	{
+		m_pfnThink = null;
+	}
 
 public:
 	static TYPEDESCRIPTION m_SaveData[];
 
 public:
-	entvars_t *pev;
+#ifdef CLIENT_DLL
+	entvars_t * pev;
+#else
+	entvars_t * const pev;
+#endif
 	CBaseEntity *m_pGoalEnt;
 	CBaseEntity *m_pLink;
 	void (CBaseEntity::*m_pfnThink)(void);
@@ -348,17 +393,7 @@ public:
 	bool has_disconnected;
 };
 
-#if defined(_DEBUG) && !defined(CLIENT_DLL)
-#define SetThink(a) ThinkSet(static_cast <void (CBaseEntity::*)(void)>(a), (char*)#a)
-#define SetTouch(a) TouchSet(static_cast <void (CBaseEntity::*)(CBaseEntity *)>(a), #a)
-#define SetUse(a) UseSet(static_cast <void (CBaseEntity::*)(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)>(a), #a)
-#define SetBlocked(a) BlockedSet(static_cast <void (CBaseEntity::*)(CBaseEntity *)>(a), #a)
-#else
-#define SetThink(a) m_pfnThink = static_cast<void (CBaseEntity::*)(void)>(a)
-#define SetTouch(a) m_pfnTouch = static_cast<void (CBaseEntity::*)(CBaseEntity *)>(a)
-#define SetUse(a) m_pfnUse = static_cast<void (CBaseEntity::*)(CBaseEntity *, CBaseEntity *, USE_TYPE, float)>(a)
-#define SetBlocked(a) m_pfnBlocked = static_cast<void (CBaseEntity::*)(CBaseEntity *)>(a)
-#endif
+#include "cbase/cbase_memory.h"
 
 class CPointEntity : public CBaseEntity
 {
@@ -414,9 +449,15 @@ public:
 class CBaseDelay : public CBaseEntity
 {
 public:
-	void KeyValue(KeyValueData *pkvd) { }
+#ifdef CLIENT_DLL
+	void KeyValue(KeyValueData *pkvd) {}
 	int Save(CSave &save) { return 1; }
 	int Restore(CRestore &restore) { return 1; }
+#else
+	void KeyValue(KeyValueData *pkvd);
+	int Save(CSave &save);
+	int Restore(CRestore &restore);
+#endif
 
 public:
 	void SUB_UseTargets(CBaseEntity *pActivator, USE_TYPE useType, float value);
@@ -435,29 +476,34 @@ public:
 class CBaseAnimating : public CBaseDelay
 {
 public:
-	virtual int Save(CSave &save) { return 1; }
-	virtual int Restore(CRestore &restore) { return 1; }
+#ifdef CLIENT_DLL
+	int Save(CSave &save) { return 1; }
+	int Restore(CRestore &restore) { return 1; }
+#else
+	int Save(CSave &save);
+	int Restore(CRestore &restore);
+#endif
 	virtual void HandleAnimEvent(MonsterEvent_t *pEvent) {}
 
 public:
 	float StudioFrameAdvance(float flInterval = 0);
 	int GetSequenceFlags(void);
-	int LookupActivity(int activity) { return 0; }
-	int LookupActivityHeaviest(int activity) { return 0; }
-	int LookupSequence(const char *label) { return 0; }
-	void ResetSequenceInfo(void) { }
-	void DispatchAnimEvents(float flFutureInterval = 0.1) { }
-	float SetBoneController(int iController, float flValue) { return 0; }
-	void InitBoneControllers(void) { }
-	float SetBlending(int iBlender, float flValue) { return 0; }
-	void GetBonePosition(int iBone, Vector &origin, Vector &angles) { }
-	void GetAutomovement(Vector &origin, Vector &angles, float flInterval = 0.1) { }
-	int FindTransition(int iEndingSequence, int iGoalSequence, int *piDir) { return -1; }
-	void GetAttachment(int iAttachment, Vector &origin, Vector &angles) { }
-	void SetBodygroup(int iGroup, int iValue) {}
-	int GetBodygroup(int iGroup) { return 0; }
-	int ExtractBbox(int sequence, float *mins, float *maxs) { return 0; }
-	void SetSequenceBox(void) { }
+	int LookupActivity(int activity);
+	int LookupActivityHeaviest(int activity);
+	int LookupSequence(const char *label);
+	void ResetSequenceInfo(void);
+	void DispatchAnimEvents(float flFutureInterval = 0.1);
+	float SetBoneController(int iController, float flValue);
+	void InitBoneControllers(void);
+	float SetBlending(int iBlender, float flValue);
+	void GetBonePosition(int iBone, Vector &origin, Vector &angles);
+	void GetAutomovement(Vector &origin, Vector &angles, float flInterval = 0.1);
+	int FindTransition(int iEndingSequence, int iGoalSequence, int *piDir);
+	void GetAttachment(int iAttachment, Vector &origin, Vector &angles);
+	void SetBodygroup(int iGroup, int iValue);
+	int GetBodygroup(int iGroup);
+	int ExtractBbox(int sequence, float *mins, float *maxs);
+	void SetSequenceBox(void);
 
 public:
 	static TYPEDESCRIPTION m_SaveData[];
@@ -475,9 +521,15 @@ public:
 class CBaseToggle : public CBaseAnimating
 {
 public:
-	void KeyValue(KeyValueData *pkvd) { }
+#ifdef CLIENT_DLL
+	void KeyValue(KeyValueData *pkvd) {}
 	int Save(CSave &save) { return 1; }
 	int Restore(CRestore &restore) { return 1; }
+#else
+	void KeyValue(KeyValueData *pkvd);
+	int Save(CSave &save);
+	int Restore(CRestore &restore);
+#endif
 	int GetToggleState(void) { return m_toggle_state; }
 	float GetDelay(void) { return m_flWait; }
 
@@ -614,7 +666,7 @@ class CSound;
 
 #include "basemonster.h"
 
-char *ButtonSound(int sound);
+const char *ButtonSound(int sound);
 
 class CBaseButton : public CBaseToggle
 {
@@ -622,7 +674,7 @@ public:
 	void Spawn(void);
 	void Precache(void);
 	void KeyValue(KeyValueData* pkvd);
-	int ObjectCaps(void) { return (CBaseToggle:: ObjectCaps() & ~FCAP_ACROSS_TRANSITION) | (pev->takedamage ? 0 : FCAP_IMPULSE_USE); }
+	int ObjectCaps(void) { return (CBaseToggle::ObjectCaps() & ~FCAP_ACROSS_TRANSITION) | (pev->takedamage ? 0 : FCAP_IMPULSE_USE); }
 	int TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType);
 	int Save(CSave &save);
 	int Restore(CRestore &restore);
@@ -657,24 +709,6 @@ public:
 	int m_sounds;
 };
 
-template <class T> T *GetClassPtr(T *a)
-{
-	entvars_t *pev = (entvars_t *)a;
-
-	if (pev == NULL)
-		pev = VARS(CREATE_ENTITY());
-
-	a = (T *)GET_PRIVATE(ENT(pev));
-
-	if (a == NULL)
-	{
-		a = new(pev) T;
-		a->pev = pev;
-	}
-
-	return a;
-}
-
 class CWorld : public CBaseEntity
 {
 public:
@@ -693,3 +727,5 @@ public:
 	int m_iStartDist, m_iEndDist;
 	float m_fDensity;
 };
+
+#endif

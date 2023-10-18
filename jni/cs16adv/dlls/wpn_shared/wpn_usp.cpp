@@ -13,10 +13,12 @@
 *
 ****/
 
-#include "stdafx.h"
+#include "extdll.h"
+#include "util.h"
 #include "cbase.h"
 #include "player.h"
 #include "weapons.h"
+#include "wpn_usp.h"
 
 enum usp_e
 {
@@ -92,7 +94,7 @@ int CUSP::GetItemInfo(ItemInfo *p)
 {
 	p->pszName = STRING(pev->classname);
 	p->pszAmmo1 = "45acp";
-	p->iMaxAmmo1 = _45ACP_MAX_CARRY;
+	p->iMaxAmmo1 = MAX_AMMO_45ACP;
 	p->pszAmmo2 = NULL;
 	p->iMaxAmmo2 = -1;
 	p->iMaxClip = USP_MAX_CLIP;

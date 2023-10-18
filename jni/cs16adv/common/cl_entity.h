@@ -13,8 +13,8 @@
 *
 ****/
 // cl_entity.h
-#if !defined( CL_ENTITYH )
-#define CL_ENTITYH
+#if !defined( CL_ENTITY_H )
+#define CL_ENTITY_H
 #ifdef _WIN32
 #ifndef __MINGW32__
 #pragma once
@@ -66,13 +66,8 @@ typedef struct cl_entity_s cl_entity_t;
 #define HISTORY_MASK	( HISTORY_MAX - 1 )
 
 
-#if !defined( ENTITY_STATEH )
 #include "entity_state.h"
-#endif
-
-#if !defined( PROGS_H )
-#include "progs.h"
-#endif
+#include "event_args.h"
 
 struct cl_entity_s
 {
@@ -114,4 +109,4 @@ struct cl_entity_s
 	colorVec				cvFloorColor;
 };
 
-#endif // !CL_ENTITYH
+#endif // CL_ENTITY_H

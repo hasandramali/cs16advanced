@@ -66,7 +66,7 @@ public:
 	void TurnOn(void);
 
 public:
-	inline float Frames(void){ return m_maxFrame; }
+	inline float Frames(void) { return m_maxFrame; }
 
 	inline void SetTransparency(int rendermode, int r, int g, int b, int a, int fx)
 	{
@@ -80,7 +80,7 @@ public:
 	inline void SetTexture(int spriteIndex) { pev->modelindex = spriteIndex; }
 	inline void SetScale(float scale) { pev->scale = scale; }
 	inline void SetColor(int r, int g, int b) { pev->rendercolor.x = r; pev->rendercolor.y = g; pev->rendercolor.z = b; }
-	inline void SetBrightness(int brightness){ pev->renderamt = brightness; }
+	inline void SetBrightness(int brightness) { pev->renderamt = brightness; }
 
 	inline void AnimateAndDie(float framerate)
 	{
@@ -125,7 +125,7 @@ public:
 	inline void SetType(int type) { pev->rendermode = (pev->rendermode & 0xF0) | (type & 0x0F); }
 	inline void SetFlags(int flags) { pev->rendermode = (pev->rendermode & 0x0F) | (flags & 0xF0); }
 	inline void SetStartPos(const Vector &pos) { pev->origin = pos; }
-	inline void SetEndPos(const Vector &pos){ pev->angles = pos; }
+	inline void SetEndPos(const Vector &pos) { pev->angles = pos; }
 
 	void SetStartEntity(int entityIndex);
 	void SetEndEntity(int entityIndex);
@@ -138,7 +138,7 @@ public:
 	inline void SetColor(int r, int g, int b) { pev->rendercolor.x = r; pev->rendercolor.y = g; pev->rendercolor.z = b; }
 	inline void SetBrightness(int brightness) { pev->renderamt = brightness; }
 	inline void SetFrame(float frame) { pev->frame = frame; }
-	inline void SetScrollRate(int speed){ pev->animtime = speed; }
+	inline void SetScrollRate(int speed) { pev->animtime = speed; }
 
 public:
 	inline int GetType(void) { return pev->rendermode & 0x0F; }
@@ -149,7 +149,7 @@ public:
 	const Vector &GetEndPos(void);
 
 public:
-	Vector Center(void){ return (GetStartPos() + GetEndPos()) * 0.5; }
+	Vector Center(void) { return (GetStartPos() + GetEndPos()) * 0.5; }
 
 public:
 	inline int GetTexture(void) { return pev->modelindex; }
@@ -157,7 +157,7 @@ public:
 	inline int GetNoise(void) { return pev->body; }
 	inline int GetBrightness(void) { return (int)(pev->renderamt); }
 	inline int GetFrame(void) { return (int)(pev->frame); }
-	inline int GetScrollRate(void){ return (int)(pev->animtime); }
+	inline int GetScrollRate(void) { return (int)(pev->animtime); }
 
 public:
 	void EXPORT TriggerTouch(CBaseEntity *pOther);
@@ -175,7 +175,7 @@ public:
 	static CBeam *BeamCreate(const char *pSpriteName, int width);
 
 public:
-	inline void LiveForTime(float time){ SetThink(&CBaseEntity::SUB_Remove); pev->nextthink = gpGlobals->time + time; }
+	inline void LiveForTime(float time) { SetThink(&CBaseEntity::SUB_Remove); pev->nextthink = gpGlobals->time + time; }
 
 	inline void BeamDamageInstant(TraceResult *ptr, float damage)
 	{
@@ -211,7 +211,7 @@ public:
 	static TYPEDESCRIPTION m_SaveData[];
 
 public:
-	CSprite *m_pSprite;
+	CSprite * m_pSprite;
 	int m_iszSpriteName;
 	Vector m_firePosition;
 };

@@ -35,7 +35,7 @@ public:
 	unsigned short TokenHash(const char *pszToken);
 
 protected:
-	SAVERESTOREDATA *m_pdata;
+	SAVERESTOREDATA * m_pdata;
 	void BufferRewind(int size);
 	unsigned int HashString(const char *pszToken);
 
@@ -47,7 +47,7 @@ private:
 class CSave : public CSaveRestoreBuffer
 {
 public:
-	CSave(SAVERESTOREDATA *pdata): CSaveRestoreBuffer(pdata) {};
+	CSave(SAVERESTOREDATA *pdata) : CSaveRestoreBuffer(pdata) {};
 
 public:
 	void WriteShort(const char *pname, const short *value, int count);
@@ -84,7 +84,7 @@ HEADER;
 class CRestore : public CSaveRestoreBuffer
 {
 public:
-	CRestore(SAVERESTOREDATA *pdata): CSaveRestoreBuffer(pdata), m_global(0), m_precache(TRUE) {}
+	CRestore(SAVERESTOREDATA *pdata) : CSaveRestoreBuffer(pdata), m_global(0), m_precache(TRUE) {}
 
 public:
 	int ReadEntVars(const char *pname, entvars_t *pev);
@@ -96,7 +96,7 @@ public:
 	char *ReadNamedString(const char *pName);
 	int Empty(void) { return (!m_pdata) || ((m_pdata->pCurrentData - m_pdata->pBaseData) >= m_pdata->bufferSize); }
 	inline void SetGlobalMode(int global) { m_global = global; }
-	void PrecacheMode(BOOL mode){ m_precache = mode; }
+	void PrecacheMode(BOOL mode) { m_precache = mode; }
 
 private:
 	char *BufferPointer(void);
@@ -160,7 +160,7 @@ public:
 	static TYPEDESCRIPTION m_SaveData[];
 
 private:
-	globalentity_t *Find(string_t globalname);
+	globalentity_t * Find(string_t globalname);
 	globalentity_t *m_pList;
 	int m_listCount;
 

@@ -12,8 +12,8 @@
 *   without written permission from Valve LLC.
 *
 ****/
-#if !defined( PARTICLEDEFH )
-#define PARTICLEDEFH
+#if !defined( PARTICLEDEF_H )
+#define PARTICLEDEF_H
 #ifdef _WIN32
 #ifndef __MINGW32__
 #pragma once
@@ -31,7 +31,8 @@ typedef enum {
 	pt_blob2,
 	pt_vox_slowgrav,
 	pt_vox_grav,
-	pt_clientcustom   // Must have callback function specified
+	pt_clientcustom,   // Must have callback function specified
+	pt_tracer		// Always have callback
 } ptype_t;
 
 // !!! if this is changed, it must be changed in d_ifacea.h too !!!

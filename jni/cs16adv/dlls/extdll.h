@@ -1,9 +1,9 @@
 /***
 *
 *	Copyright (c) 1996-2001, Valve LLC. All rights reserved.
-*	
-*	This product contains software technology licensed from Id 
-*	Software, Inc. ("Id Technology").  Id Technology (c) 1996 Id Software, Inc. 
+*
+*	This product contains software technology licensed from Id
+*	Software, Inc. ("Id Technology").  Id Technology (c) 1996 Id Software, Inc.
 *	All Rights Reserved.
 *
 *   Use, distribution, and modification of this source code and/or resulting
@@ -24,7 +24,7 @@
 #define DEBUG 1
 #endif
 
-#ifdef MSC_VER
+#ifdef _MSC_VER
 // Silence certain warnings
 #pragma warning(disable : 4244)		// int or float down-conversion
 #pragma warning(disable : 4305)		// int or float data truncation
@@ -33,7 +33,11 @@
 #pragma warning(disable : 4100)		// unreferenced formal parameter
 #endif
 
+#include "stdint.h"
+#include "maintypes.h"
+#include "basetypes.h"
 #include "archtypes.h"     // DAL
+#include "common.h"
 
 // Prevent tons of unused windows definitions
 #ifdef _WIN32
@@ -46,7 +50,11 @@
 #else // _WIN32
 typedef unsigned char BYTE;
 typedef int BOOL;
+
+#ifndef MAX_PATH
 #define MAX_PATH PATH_MAX
+#endif
+
 #include <limits.h>
 #include <stdarg.h>
 #include <string.h> // memset 
@@ -59,32 +67,29 @@ typedef int BOOL;
 #include "stdlib.h"
 #include "math.h"
 
-#ifndef min
-#define min(a,b)  (((a) < (b)) ? (a) : (b))
-#endif
-#ifndef max
-#define max(a,b)  (((a) > (b)) ? (a) : (b))
-#endif
+//#include "minmax.h"
 
 // Header file containing definition of globalvars_t and entvars_t
 //typedef unsigned int func_t;					//
 //typedef unsigned int string_t;				// from engine's pr_comp.h;
 typedef float vec_t;				// needed before including progdefs.h
 
-// Vector class
+									// Vector class
 #include "vector.h"
 
-// Defining it as a (bogus) struct helps enforce type-checking
+									// Defining it as a (bogus) struct helps enforce type-checking
 #define vec3_t Vector
 
-// Shared engine/DLL constants
+									// Shared engine/DLL constants
 #include "const.h"
 #include "progdefs.h"
 #include "edict.h"
 
-// Shared header describing protocol between engine and DLLs
+									// Shared header describing protocol between engine and DLLs
 #include "eiface.h"
+#undef DLLEXPORT
+#include "exportdef.h"
 
-// Shared header between the client DLL and the game DLLs
+									// Shared header between the client DLL and the game DLLs
 #include "cdll_dll.h"
 #endif //EXTDLL_H

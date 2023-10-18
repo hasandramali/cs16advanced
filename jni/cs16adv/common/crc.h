@@ -1,9 +1,9 @@
 /***
 *
 *	Copyright (c) 1996-2002, Valve LLC. All rights reserved.
-*	
-*	This product contains software technology licensed from Id 
-*	Software, Inc. ("Id Technology").  Id Technology (c) 1996 Id Software, Inc. 
+*
+*	This product contains software technology licensed from Id
+*	Software, Inc. ("Id Technology").  Id Technology (c) 1996 Id Software, Inc.
 *	All Rights Reserved.
 *
 *   Use, distribution, and modification of this source code and/or resulting
@@ -16,32 +16,43 @@
 #ifndef CRC_H
 #define CRC_H
 #ifdef _WIN32
-#ifndef __MINGW32__
 #pragma once
-#endif /* not __MINGW32__ */
 #endif
+
+#include "archtypes.h"     // DAL
 
 // MD5 Hash
 typedef struct
 {
 	unsigned int buf[4];
-    unsigned int bits[2];
-    unsigned char in[64];
+	unsigned int bits[2];
+	unsigned char in[64];
 } MD5Context_t;
 
 
-typedef unsigned long CRC32_t;
-void CRC32_Init(CRC32_t *pulCRC);
-CRC32_t CRC32_Final(CRC32_t pulCRC);
-void CRC32_ProcessBuffer(CRC32_t *pulCRC, void *p, int len);
-void CRC32_ProcessByte(CRC32_t *pulCRC, unsigned char ch);
-int CRC_File(CRC32_t *crcvalue, char *pszFileName);
+#ifdef _WIN32
+typedef uint32 CRC32_t;
+#else
+typedef uint32 CRC32_t;
+#endif
 
-unsigned char COM_BlockSequenceCRCByte (unsigned char *base, int length, int sequence);
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+	void CRC32_Init(CRC32_t *pulCRC);
+	CRC32_t CRC32_Final(CRC32_t pulCRC);
+	void CRC32_ProcessBuffer(CRC32_t *pulCRC, void *p, int len);
+	void CRC32_ProcessByte(CRC32_t *pulCRC, unsigned char ch);
+	int CRC_File(CRC32_t *crcvalue, char *pszFileName);
+#ifdef __cplusplus
+}
+#endif
+unsigned char COM_BlockSequenceCRCByte(unsigned char *base, int length, int sequence);
 
 void MD5Init(MD5Context_t *context);
 void MD5Update(MD5Context_t *context, unsigned char const *buf,
-               unsigned int len);
+	unsigned int len);
 void MD5Final(unsigned char digest[16], MD5Context_t *context);
 void Transform(unsigned int buf[4], unsigned int const in[16]);
 

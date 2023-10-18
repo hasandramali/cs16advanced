@@ -12,8 +12,8 @@
 *   without written permission from Valve LLC.
 *
 ****/
-#if !defined ( DLIGHTH )
-#define DLIGHTH
+#if !defined ( DLIGHT_H )
+#define DLIGHT_H
 #ifdef _WIN32
 #ifndef __MINGW32__
 #pragma once
@@ -32,4 +32,4 @@ typedef struct dlight_s
 	qboolean	dark;			// subtracts light instead of adding
 } dlight_t;
 
-#endif
+#endif // DLIGHT_H

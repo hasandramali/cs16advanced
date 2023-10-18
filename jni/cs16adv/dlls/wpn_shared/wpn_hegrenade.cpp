@@ -13,10 +13,12 @@
 *
 ****/
 
-#include "stdafx.h"
+#include "extdll.h"
+#include "util.h"
 #include "cbase.h"
 #include "player.h"
 #include "weapons.h"
+#include "wpn_hegrenade.h"
 
 enum hegrenade_e
 {
@@ -60,7 +62,7 @@ int CHEGrenade::GetItemInfo(ItemInfo *p)
 {
 	p->pszName = STRING(pev->classname);
 	p->pszAmmo1 = "HEGrenade";
-	p->iMaxAmmo1 = HEGRENADE_MAX_CARRY;
+	p->iMaxAmmo1 = MAX_AMMO_HEGRENADE;
 	p->pszAmmo2 = NULL;
 	p->iMaxAmmo2 = -1;
 	p->iMaxClip = WEAPON_NOCLIP;

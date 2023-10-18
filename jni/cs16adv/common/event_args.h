@@ -12,8 +12,8 @@
 *   without written permission from Valve LLC.
 *
 ****/
-#if !defined( EVENT_ARGSH )
-#define EVENT_ARGSH
+#if !defined( EVENT_ARGS_H )
+#define EVENT_ARGS_H
 #ifdef _WIN32
 #ifndef __MINGW32__
 #pragma once

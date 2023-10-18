@@ -13,15 +13,17 @@
 *
 ****/
 
-#include "stdafx.h"
+#include "extdll.h"
+#include "util.h"
 #include "cbase.h"
 #include "player.h"
 #include "weapons.h"
 #include "hltv.h"
 #include "gamerules.h"
+#include "wpn_c4.h"
 
 //#define C4MADNESS
-#ifdef CLIENT_WEAPONS
+#ifdef CLIENT_DLL
 extern bool g_bInBombZone;
 #endif
 
@@ -73,7 +75,7 @@ int CC4::GetItemInfo(ItemInfo *p)
 {
 	p->pszName = STRING(pev->classname);
 	p->pszAmmo1 = "C4";
-	p->iMaxAmmo1 = C4_MAX_CARRY;
+	p->iMaxAmmo1 = MAX_AMMO_C4;
 	p->pszAmmo2 = NULL;
 	p->iMaxAmmo2 = -1;
 	p->iMaxClip = WEAPON_NOCLIP;
@@ -124,7 +126,7 @@ void CC4::PrimaryAttack(void)
 	if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		return;
 
-#ifndef CLIENT_WEAPONS
+#ifndef CLIENT_DLL
 	BOOL onBombZone = m_pPlayer->m_signals.GetState() & SIGNAL_BOMB;
 #else
 	BOOL onBombZone = g_bInBombZone;
@@ -194,7 +196,7 @@ void CC4::PrimaryAttack(void)
 				m_pPlayer->m_bHasC4 = false;
 
 				Broadcast("BOMBPL");
-#ifndef CLIENT_WEAPONS
+#ifndef CLIENT_DLL
 
 				if (pev->speed != 0 && g_pGameRules)
 					g_pGameRules->m_iC4Timer = (int)pev->speed;
@@ -319,7 +321,7 @@ void CC4::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, f
 		edict_t *target = pPlayer->m_pentCurBombTarget;
 		pPlayer->m_pentCurBombTarget = NULL;
 
-#ifndef CLIENT_WEAPONS
+#ifndef CLIENT_DLL
 		if (pev->speed != 0 && g_pGameRules)
 			g_pGameRules->m_iC4Timer = (int)pev->speed;
 #endif

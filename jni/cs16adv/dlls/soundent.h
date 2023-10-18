@@ -13,6 +13,16 @@
 *
 ****/
 
+#ifndef SOUNDENT_H
+#define SOUNDENT_H
+#ifdef _WIN32
+#pragma once
+#endif
+
+// Soundent.h - the entity that spawns when the world
+// spawns, and handles the world's active and free sound
+// lists.
+
 #define MAX_WORLD_SOUNDS 64
 
 #define bits_SOUND_NONE 0
@@ -52,7 +62,7 @@ public:
 	BOOL FIsScent(void);
 };
 
-class CSoundEnt : public CBaseEntity 
+class CSoundEnt : public CBaseEntity
 {
 public:
 	void Precache(void);
@@ -83,3 +93,7 @@ public:
 private:
 	CSound m_SoundPool[MAX_WORLD_SOUNDS];
 };
+
+extern CSoundEnt *pSoundEnt;
+
+#endif // SOUNDENT_H

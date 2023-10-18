@@ -46,8 +46,13 @@ typedef struct event_api_s
 	const char *( *EV_TraceTexture ) ( int ground, float *vstart, float *vend );
 	void	( *EV_StopAllSounds ) ( int entnum, int entchannel );
 	void    ( *EV_KillEvents ) ( int entnum, const char *eventname );
-} event_api_t;
 
-extern event_api_t eventapi;
+	// Xash3D extension
+	unsigned short(*EV_IndexForEvent)(const char *name);
+	const char *(*EV_EventForIndex)(unsigned short index);
+	void(*EV_PlayerTraceExt)(float *start, float *end, int traceFlags, int(*pfnIgnore)(struct physent_s *pe), struct pmtrace_s *tr);
+	const char *(*EV_SoundForIndex)(int index);
+	struct msurface_s *(*EV_TraceSurface)(int ground, float *vstart, float *vend);
+} event_api_t;
 
 #endif

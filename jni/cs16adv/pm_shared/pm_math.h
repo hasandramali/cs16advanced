@@ -31,9 +31,9 @@
 #ifdef _WIN32
 #pragma once
 #endif
+
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #define PITCH	0	// up/down
@@ -57,7 +57,10 @@ void VectorTransform(const vec_t *in1, float (*in2)[4], vec_t *out);
 int   VectorCompare(const vec_t *v1, const vec_t *v2);
 void  VectorMA(const vec_t *veca, float scale, const vec_t *vecb, vec_t *vecc);
 
-float _DotProduct(const vec_t *v1, const vec_t *v2);
+#ifdef DotProduct
+#undef DotProduct
+#endif
+float DotProduct(const vec_t *v1, const vec_t *v2);
 void  _VectorSubtract(vec_t *veca, vec_t *vecb, vec_t *out);
 void  _VectorAdd(vec_t *veca, vec_t *vecb, vec_t *out);
 void  _VectorCopy(vec_t *in, vec_t *out);
@@ -74,7 +77,7 @@ void  VectorMatrix(vec_t *forward, vec_t *right, vec_t *up);
 void  VectorAngles(const vec_t *forward, vec_t *angles);
 
 #ifdef __cplusplus
-}
+} // extern "C"
 #endif
 
 #endif // PM_MATH_H

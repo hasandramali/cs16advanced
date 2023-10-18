@@ -12,8 +12,8 @@
 *   without written permission from Valve LLC.
 *
 ****/
-#if !defined( QFONTH )
-#define QFONTH
+#if !defined( QFONT_H )
+#define QFONT_H
 #ifdef _WIN32
 #ifndef __MINGW32__
 #pragma once
