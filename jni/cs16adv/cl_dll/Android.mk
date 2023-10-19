@@ -153,26 +153,6 @@ LOCAL_SRC_FILES := \
 	../dlls/wpn_shared/wpn_ump45.cpp \
 	../dlls/wpn_shared/wpn_usp.cpp \
 	../dlls/wpn_shared/wpn_xm1014.cpp \
-	../dlls/wpn_shared/wpn_mp7a1d.cpp \
-	../dlls/wpn_shared/wpn_deagled.cpp \
-	../dlls/wpn_shared/wpn_as50.cpp \
-	../dlls/wpn_shared/wpn_infinity.cpp \
-	../dlls/wpn_shared/wpn_k1a.cpp \
-	../dlls/wpn_shared/knife_zombi.cpp \
-	../dlls/wpn_shared/wpn_kriss.cpp \
-	../dlls/wpn_shared/wpn_m95.cpp \
-	../dlls/wpn_shared/wpn_m1887.cpp \
-	../dlls/wpn_shared/wpn_scarh.cpp \
-	../dlls/wpn_shared/wpn_scarl.cpp \
-	../dlls/wpn_shared/wpn_tar21.cpp \
-	../dlls/wpn_shared/wpn_thompson.cpp \
-	../dlls/wpn_shared/wpn_wa2000.cpp \
-	../dlls/wpn_shared/wpn_xm8c.cpp \
-	../dlls/wpn_shared/wpn_xm8s.cpp \
-	../dlls/wpn_shared/wpn_mg3.cpp \
-	../dlls/wpn_shared/wpn_mp7a1c.cpp \
-	../dlls/wpn_shared/wpn_mp7a1p.cpp \
-	../dlls/wpn_shared/wpn_infinitys.cpp \
 	./events/ev_cs16.cpp \
 	./events/event_ak47.cpp \
 	./events/event_aug.cpp \
