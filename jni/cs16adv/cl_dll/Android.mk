@@ -156,7 +156,6 @@ LOCAL_SRC_FILES := \
 	../dlls/wpn_shared/wpn_mp7a1d.cpp \
 	../dlls/wpn_shared/wpn_deagled.cpp \
 	../dlls/wpn_shared/wpn_as50.cpp \
-	../dlls/wpn_shared/wpn_cannon.cpp \
 	../dlls/wpn_shared/wpn_infinity.cpp \
 	../dlls/wpn_shared/wpn_k1a.cpp \
 	../dlls/wpn_shared/knife_zombi.cpp \
