@@ -169,8 +169,6 @@ LOCAL_SRC_FILES := \
 	../dlls/wpn_shared/wpn_wa2000.cpp \
 	../dlls/wpn_shared/wpn_xm8c.cpp \
 	../dlls/wpn_shared/wpn_xm8s.cpp \
-	../dlls/wpn_shared/knife_skullaxe.cpp \
-	../dlls/wpn_shared/wpn_gungnir.cpp \
 	../dlls/wpn_shared/wpn_mg3.cpp \
 	../dlls/wpn_shared/wpn_mp7a1c.cpp \
 	../dlls/wpn_shared/wpn_mp7a1p.cpp \
