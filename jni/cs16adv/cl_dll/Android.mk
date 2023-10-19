@@ -153,7 +153,6 @@ LOCAL_SRC_FILES := \
 	../dlls/wpn_shared/wpn_ump45.cpp \
 	../dlls/wpn_shared/wpn_usp.cpp \
 	../dlls/wpn_shared/wpn_xm1014.cpp \
-	../dlls/wpn_shared/wpn_ak47l.cpp \
 	../dlls/wpn_shared/wpn_mp7a1d.cpp \
 	../dlls/wpn_shared/wpn_deagled.cpp \
 	../dlls/wpn_shared/wpn_as50.cpp \
