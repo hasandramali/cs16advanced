@@ -22,7 +22,7 @@ jobs:
       distribution: 'zulu' # See 'Supported distributions' for available options
       java-version: '8'
    - run: |
-           sudo apt-get update
+           sudo apt-get update --fix-missing
            sudo apt install build-essential gcc-multilib g++-multilib gcc g++ -y
            wget https://dl.google.com/android/repository/android-ndk-r10e-linux-x86_64.zip
            unzip -qq android-ndk-r10e-linux-x86_64.zip
