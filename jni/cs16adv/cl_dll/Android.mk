@@ -185,27 +185,6 @@ LOCAL_SRC_FILES := \
 	./events/event_vehicle.cpp \
 	./events/event_xm1014.cpp \
 	./events/hl_events.cpp \
-	./events/event_mp7a1d.cpp \
-	./events/event_deagled.cpp \
-	./events/event_as50.cpp \
-	./events/event_cannon.cpp \
-	./events/event_infinity.cpp \
-	./events/event_k1a.cpp \
-	./events/event_kriss.cpp \
-	./events/event_m95.cpp \
-	./events/event_m1887.cpp \
-	./events/event_scarh.cpp \
-	./events/event_scarl.cpp \
-	./events/event_tar21.cpp \
-	./events/event_thompson.cpp \
-	./events/event_wa2000.cpp \
-	./events/event_xm8c.cpp \
-	./events/event_xm8s.cpp \
-	./events/event_mg3.cpp \
-	./events/event_mp7a1c.cpp \
-	./events/event_mp7a1p.cpp \
-	./events/event_svdex.cpp \
-	./events/event_infinitys.cpp \
 	./ev_common.cpp \
 	./calcscreen.cpp \
 	./input_touch.cpp \
