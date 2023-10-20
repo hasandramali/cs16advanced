@@ -21,13 +21,12 @@ GNU General Public License for more details.
 
 #include "parsemsg.h"
 
-#include "hud_sub_impl.h"
-
 #include "zb3.h"
 #include "zb3_morale.h"
 #include "zb3_rage.h"
 
 #include "gamemode/zb3/zb3_const.h"
+#include "player/player_zombie.h"
 
 #include <vector>
 

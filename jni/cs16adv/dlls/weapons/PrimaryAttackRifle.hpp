@@ -15,13 +15,18 @@ GNU General Public License for more details.
 
 #pragma once
 
-template<class CFinal, class CBase = CBaseTemplateWeapon>
-class TPrimaryAttackRifle : public CBase
-{
-public:
-	static constexpr float PrimaryAttackWalkingMiniumSpeed = 140;
-	static constexpr const auto &A = WeaponTemplate::Varibles::A;
+#include "ExpressionBuilder.hpp"
 
+namespace detail {
+	class TPrimaryAttackRifle_Detail {
+	public:
+		static constexpr const auto &A = ExpressionBuilder::x;
+	};
+}
+
+template<class CFinal, class CBase = CBaseTemplateWeapon>
+class TPrimaryAttackRifle : public CBase, public detail::TPrimaryAttackRifle_Detail
+{
 public:
 	void PrimaryAttack(void) override
 	{
@@ -29,10 +34,8 @@ public:
 
 		if (!FBitSet(CBase::m_pPlayer->pev->flags, FL_ONGROUND))
 			wpn.Fire(wpn.SpreadCalcNotOnGround(A = CBase::m_flAccuracy), wpn.CycleTime, FALSE);
-		else if (PrimaryAttackImpl_Walking(&wpn))
-			void(); // do nothing
-		else if (PrimaryAttackImpl_Ducking(&wpn))
-			void(); // do nothing
+		else if (CBase::m_pPlayer->pev->velocity.Length2D() > 140)
+			wpn.Fire(wpn.SpreadCalcWalking(A = CBase::m_flAccuracy), wpn.CycleTime, FALSE);
 		else if (PrimaryAttackImpl_Zoomed(&wpn))
 			void(); // do nothing
 		else
@@ -42,38 +45,6 @@ public:
 	}
 
 private:
-	// sfinae query for whether the weapon has SpreadCalcWalking.
-	static constexpr bool PrimaryAttackImpl_Walking(...) { return false; }
-	template<class ClassToFind = CFinal>
-	auto PrimaryAttackImpl_Walking(ClassToFind *) -> decltype(&ClassToFind::SpreadCalcWalking, &ClassToFind::PrimaryAttackWalkingMiniumSpeed, bool())
-	{
-		CFinal &wpn = static_cast<CFinal &>(*this);
-
-		if(CBase::m_pPlayer->pev->velocity.Length2D() > wpn.PrimaryAttackWalkingMiniumSpeed)
-		{
-			wpn.Fire(wpn.SpreadCalcWalking(A = CBase::m_flAccuracy), wpn.CycleTime, FALSE);
-			return true;
-		}
-
-		return false;
-	}
-
-	// sfinae query for whether the weapon has SpreadCalcDucking.
-	static constexpr bool PrimaryAttackImpl_Ducking(...) { return false; }
-	template<class ClassToFind = CFinal>
-	auto PrimaryAttackImpl_Ducking(ClassToFind *) -> decltype(&ClassToFind::SpreadCalcDucking, bool())
-	{
-		CFinal &wpn = static_cast<CFinal &>(*this);
-
-		if (FBitSet(CBase::m_pPlayer->pev->flags, FL_DUCKING))
-		{
-			wpn.Fire(wpn.SpreadCalcDucking(A = CBase::m_flAccuracy), wpn.CycleTime, FALSE);
-			return true;
-		}
-
-		return false;
-	}
-
 	// sfinae query for whether the weapon has/is zoom.
 	static constexpr bool PrimaryAttackImpl_Zoomed(...) { return false; }
 	template<class ClassToFind = CFinal>

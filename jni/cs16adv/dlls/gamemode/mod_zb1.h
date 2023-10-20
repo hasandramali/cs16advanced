@@ -20,12 +20,9 @@ GNU General Public License for more details.
 #endif
 
 #include "mod_base.h"
-#include "zb1/zb1_zclass.h"
 
 #include <vector>
 #include <utility>
-
-#include "EventDispatcher.h"
 
 class CMod_Zombi : public TBaseMod_RemoveObjects<TBaseMod_RandomSpawn<>>
 {
@@ -55,6 +52,7 @@ protected:
 	virtual void PickZombieOrigin();
 	virtual void HumanInfectionByZombie(CBasePlayer *player, CBasePlayer *attacker);
 	virtual void RoundEndScore(int iWinStatus);
+	virtual void MakeZombie(CBasePlayer *player, ZombieLevel iEvolutionLevel);
 
 protected:
 	void TeamCheck();
@@ -64,38 +62,15 @@ protected:
 	void ZombieWin();
 
 	BOOL FInfectionStarted();
-
-	void MakeZombie(CBasePlayer *player, ZombieLevel iEvolutionLevel) { m_eventBecomeZombie.dispatch(player, iEvolutionLevel); }
-
-public:
-	EventDispatcher<void(CBasePlayer *who, ZombieLevel iEvolutionLevel)> m_eventBecomeZombie;
 };
 
 class CPlayerModStrategy_ZB1 : public CPlayerModStrategy_Zombie
 {
 public:
-	CPlayerModStrategy_ZB1(CBasePlayer *player, CMod_Zombi *mp);
+	using CPlayerModStrategy_Zombie::CPlayerModStrategy_Zombie;
 	void CheckBuyZone() override { m_pPlayer->m_signals.Signal(SIGNAL_BUY); };
 	bool CanPlayerBuy(bool display) override;
 	int ComputeMaxAmmo(const char *szAmmoClassName, int iOriginalMax) override;
-
-	void OnSpawn() override;
-	void OnThink() override { m_pCharacter->Think(); return CPlayerModStrategy_Zombie::OnThink(); }
-	void OnResetMaxSpeed() override { m_pCharacter->ResetMaxSpeed(); return CPlayerModStrategy_Zombie::OnResetMaxSpeed(); }
-	bool ApplyKnockback(CBasePlayer *attacker, const KnockbackData &data) override { return m_pCharacter->ApplyKnockback(attacker, data); }
-	float AdjustDamageTaken(entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType) override;
-	void Pain(int m_LastHitGroup, bool HasArmour) override;
-	void DeathSound() override;
-
-private:
-	void Event_OnBecomeZombie(CBasePlayer *who, ZombieLevel iEvolutionLevel);
-	const EventListener m_eventBecomeZombieListener;
-
-public:
-	virtual void BecomeZombie(ZombieLevel iEvolutionLevel);
-	virtual void BecomeHuman();
-
-	std::shared_ptr<IZombieModeCharacter> m_pCharacter;
 };
 
 #endif

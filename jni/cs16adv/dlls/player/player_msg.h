@@ -106,7 +106,6 @@ extern int gmsgZBSLevel;
 extern int gmsgBTEWeapon;
 extern int gmsgZB2Msg;
 extern int gmsgZB3Msg;
-extern int gmsgGunDeath;
 
 void LinkUserMessages();
 void WriteSigonMessages();

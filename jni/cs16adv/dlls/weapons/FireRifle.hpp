@@ -15,8 +15,17 @@ GNU General Public License for more details.
 
 #pragma once
 
+#include "ExpressionBuilder.hpp"
+
+namespace detail {
+	class TFireRifle_Detail {
+	public:
+		static constexpr const auto &N = ExpressionBuilder::x;
+	};
+}
+
 template<class CFinal, class CBase = CBaseTemplateWeapon>
-class TFireRifle : public CBase
+class TFireRifle : public CBase, public detail::TFireRifle_Detail
 {
 public:
 	// Default Settings
@@ -26,7 +35,6 @@ public:
 //	static constexpr auto BulletType = BULLET_PLAYER_762MM;
 //	static constexpr int Penetration = 2;
 	static constexpr int Distance = 8192;
-	static constexpr const auto &N = WeaponTemplate::Varibles::N;
 
 public:
 	void Fire(float flSpread, float flCycleTime, BOOL fUseAutoAim)
@@ -105,20 +113,18 @@ public:
 
 private:
 	template<class ClassToCheck = CFinal>
-	auto CheckAccuracyBoundaryMin(ClassToCheck *p) -> decltype(&ClassToCheck::AccuracyMin, void())
+	auto CheckAccuracyBoundaryMin(ClassToCheck *p) -> decltype(&ClassToCheck::AccuracyMin(), void())
 	{
-		CFinal &wpn = static_cast<CFinal &>(*this);
-		if (CBase::m_flAccuracy < wpn.AccuracyMin)
-			CBase::m_flAccuracy = wpn.AccuracyMin;
+		if (CBase::m_flAccuracy < p->AccuracyMin)
+			CBase::m_flAccuracy = p->AccuracyMin;
 	}
 	void CheckAccuracyBoundaryMin(...) {}
 
 	template<class ClassToCheck = CFinal>
-	auto CheckAccuracyBoundaryMax(ClassToCheck *p) -> decltype(&ClassToCheck::AccuracyMax, void())
+	auto CheckAccuracyBoundaryMax(ClassToCheck *p) -> decltype(&ClassToCheck::AccuracyMax(), void())
 	{
-		CFinal &wpn = static_cast<CFinal &>(*this);
-		if (CBase::m_flAccuracy > wpn.AccuracyMax)
-			CBase::m_flAccuracy = wpn.AccuracyMax;
+		if (CBase::m_flAccuracy > p->AccuracyMax)
+			CBase::m_flAccuracy = p->AccuracyMax;
 	}
 	void CheckAccuracyBoundaryMax(...) {}
 };

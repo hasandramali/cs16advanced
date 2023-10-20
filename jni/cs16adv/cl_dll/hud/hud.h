@@ -127,7 +127,6 @@ struct HUDLIST {
 #include "zb2/zb2.h"
 #include "zb3/zb3.h"
 #include "retina.h"
-#include "moe/moe_touch.h"
 
 //
 //-----------------------------------------------------
@@ -182,7 +181,7 @@ public:
 
 	bool FHasSecondaryAmmo() { return m_pWeapon && m_pWeapon->iAmmo2Type > 0; }
 
-public:
+private:
 	float m_fFade;
 	RGBA  m_rgba;
 	WEAPON *m_pWeapon;
@@ -981,7 +980,6 @@ public:
 	CHudZBS	m_ZBS;
 	CHudZB2 m_ZB2;
 	CHudZB3 m_ZB3;
-	CHudMoeTouch m_MoeTouch;
 
 	// user messages
 	CHudMsgFunc(Damage);

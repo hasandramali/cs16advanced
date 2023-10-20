@@ -120,7 +120,6 @@ set (HUD_SRCS
 	./hud/zb3/zb3.cpp
 	./hud/zb3/zb3_morale.cpp
 	./hud/zb3/zb3_rage.cpp
-	./hud/moe/moe_touch.cpp
 
 )
 
@@ -153,7 +152,6 @@ set (CLDLL_SOURCES
     ../public/unicode_strtools.cpp
 	./draw_util.cpp
 	./calcscreen.cpp
-	./input_touch.cpp
 
 	${PLAYERMOVE_SRCS}
 	${HUD_SRCS}

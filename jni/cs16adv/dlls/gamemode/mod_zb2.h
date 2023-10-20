@@ -21,10 +21,9 @@ GNU General Public License for more details.
 
 #include "mod_zb1.h"
 
-#include "EventDispatcher.h"
+#include "player/player_zombie_skill.h"
 
-#include "zb2/zb2_zclass.h"
-#include "zb2/zb2_skill.h"
+#include "EventDispatcher.h"
 
 class CSupplyBox;
 
@@ -43,8 +42,6 @@ public:
 
 public: // IBaseMod
 	void InstallPlayerModStrategy(CBasePlayer *player) override;
-	float GetAdjustedEntityDamage(CBaseEntity *victim, entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType) override;
-	HitBoxGroup GetAdjustedTraceAttackHitgroup(CBaseEntity *victim, entvars_t * pevAttacker, float flDamage, const Vector & vecDir, TraceResult * ptr, int bitsDamageType) override;
 
 protected:
 	void MakeSupplyboxThink();
@@ -54,11 +51,11 @@ protected:
 
 public:
 	void HumanInfectionByZombie(CBasePlayer *player, CBasePlayer *attacker) override;
+	void MakeZombie(CBasePlayer *player, ZombieLevel iEvolutionLevel) override;
 
 public:
+	EventDispatcher<void(CBasePlayer *who, ZombieLevel iEvolutionLevel)> m_eventBecomeZombie;
 	EventDispatcher<void(CBasePlayer *victim, CBasePlayer *attacker)> m_eventInfection;
-	EventDispatcher<void(CBasePlayer *attacker, float &)> m_eventAdjustDamage;
-	EventDispatcher<void(CBasePlayer *attacker, HitBoxGroup &)> m_eventAdjustHitgroup;
 
 protected:
 	float m_flTimeNextMakeSupplybox;
@@ -72,9 +69,11 @@ public:
 	bool ClientCommand(const char *pcmd) override;
 	void OnSpawn() override;
 	void OnThink() override;
+	void OnResetMaxSpeed() override;
 	void Pain(int m_LastHitGroup, bool HasArmour) override;
 
 protected:
+	virtual void InitZombieSkill();
 	virtual bool CanUseZombieSkill();
 	virtual void Zombie_HealthRecoveryThink();
 	virtual void UpdatePlayerEvolutionHUD();
@@ -82,21 +81,15 @@ protected:
 	virtual void EvolutionSound() const;
 
 protected:
-	void BecomeZombie(ZombieLevel iEvolutionLevel) override;
-	void BecomeHuman() override;
+	virtual void Event_OnBecomeZombie(CBasePlayer *who, ZombieLevel iEvolutionLevel);
 	virtual void Event_OnInfection(CBasePlayer *victim, CBasePlayer *attacker);
-	virtual void Event_AdjustHumanDamage(CBasePlayer *attacker, float &flDamage);
-	virtual void Event_AdjustHumanHitgroup(CBasePlayer *attacker, HitBoxGroup &iHitgroup);
+	EventListener m_eventBecomeZombieListener;
 	EventListener m_eventInfectionListener;
-	EventListener m_eventAdjustDamageListener;
-	EventListener m_eventAdjustHitgroupListener;
-	const std::vector<EventListener> m_eventListeners;
 	
 private:
 	CMod_ZombieMod2 * const m_pModZB2;
 
-	//std::unique_ptr<IZombieSkill> m_pZombieSkill;
-	std::shared_ptr<IZombieModeCharacter_ZB2_Extra> m_pCharacter_ZB2;
+	std::unique_ptr<IZombieSkill> m_pZombieSkill;
 	float m_flTimeNextZombieHealthRecovery;
 	int m_iZombieInfections;
 };

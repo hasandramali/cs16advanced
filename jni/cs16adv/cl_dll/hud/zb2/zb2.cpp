@@ -1,18 +1,3 @@
-/*
-zb2.cpp - CSMoE Client HUD : Zombie Mod 2
-Copyright (C) 2019 Moemod Yanase
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-*/
-
 #include "hud.h"
 #include "followicon.h"
 #include "cl_util.h"
@@ -23,18 +8,16 @@ GNU General Public License for more details.
 
 #include "zb2.h"
 #include "zb2_skill.h"
-#include "hud_sub_impl.h"
 
 #include "gamemode/zb2/zb2_const.h"
 
 #include <vector>
 
-class CHudZB2_impl_t : public THudSubDispatcher<CHudZB2_Skill>
+class CHudZB2::impl_t
+	: public THudSubDispatcher<CHudZB2_Skill>
 {
 public:
 	SharedTexture m_pTexture_RageRetina;
-	SharedTexture m_pTexture_SprintRetina;
-	SharedTexture m_pTexture_DamageDoubleRetina;
 	std::vector<CHudRetina::MagicNumber> m_RetinaIndexes;
 };
 
@@ -42,7 +25,7 @@ DECLARE_MESSAGE(m_ZB2, ZB2Msg)
 int CHudZB2::MsgFunc_ZB2Msg(const char *pszName, int iSize, void *pbuf)
 {
 	BufferReader buf(pszName, pbuf, iSize);
-	auto type = static_cast<ZB2MessageType>(buf.ReadByte());
+	ZB2MessageType type = static_cast<ZB2MessageType>(buf.ReadByte());
 	switch (type)
 	{
 	case ZB2_MESSAGE_HEALTH_RECOVERY:
@@ -70,16 +53,12 @@ int CHudZB2::MsgFunc_ZB2Msg(const char *pszName, int iSize, void *pbuf)
 	}
 	case ZB2_MESSAGE_SKILL_ACTIVATE:
 	{
-		auto skilltype = static_cast<ZombieSkillType>(buf.ReadByte());
+		ZombieSkillType type = static_cast<ZombieSkillType>(buf.ReadByte());
 		float flHoldTime = buf.ReadShort();
 		float flFreezeTime = buf.ReadShort();
-		pimpl->get<CHudZB2_Skill>().OnSkillActivate(skilltype, flHoldTime, flFreezeTime);
-		if (skilltype == ZOMBIE_SKILL_CRAZY || skilltype == ZOMBIE_SKILL_CRAZY2)
-			pimpl->m_RetinaIndexes.push_back(gHUD.m_Retina.AddItem(pimpl->m_pTexture_RageRetina, CHudRetina::RETINA_DRAW_TYPE_BLINK, flHoldTime));
-		else if (skilltype == ZOMBIE_SKILL_SPRINT)
-			pimpl->m_RetinaIndexes.push_back(gHUD.m_Retina.AddItem(pimpl->m_pTexture_SprintRetina, CHudRetina::RETINA_DRAW_TYPE_BLINK | CHudRetina::RETINA_DRAW_TYPE_QUARTER, flHoldTime));
-		else if (skilltype == ZOMBIE_SKILL_HEADSHOT || skilltype == ZOMBIE_SKILL_KNIFE2X)
-			pimpl->m_RetinaIndexes.push_back(gHUD.m_Retina.AddItem(pimpl->m_pTexture_DamageDoubleRetina, CHudRetina::RETINA_DRAW_TYPE_BLINK | CHudRetina::RETINA_DRAW_TYPE_QUARTER, flHoldTime));
+		pimpl->get<CHudZB2_Skill>().OnSkillActivate(type, flHoldTime, flFreezeTime);
+		if (type == ZOMBIE_SKILL_CRAZY || type == ZOMBIE_SKILL_CRAZY2)
+			pimpl->m_RetinaIndexes.push_back(gHUD.m_Retina.AddItem(pimpl->m_pTexture_RageRetina, CHudRetina::RETINA_DRAW_TYPE_BLINK, 10.0f));
 		break;
 	}
 		
@@ -89,9 +68,9 @@ int CHudZB2::MsgFunc_ZB2Msg(const char *pszName, int iSize, void *pbuf)
 	return 1;
 }
 
-int CHudZB2::Init()
+int CHudZB2::Init(void)
 {
-	pimpl = new CHudZB2_impl_t;
+	pimpl = new CHudZB2::impl_t;
 
 	gHUD.AddHudElem(this);
 
@@ -100,13 +79,12 @@ int CHudZB2::Init()
 	return 1;
 }
 
-int CHudZB2::VidInit()
+int CHudZB2::VidInit(void)
 {
 	pimpl->for_each(&IBaseHudSub::VidInit);
 
-	R_InitTexture(pimpl->m_pTexture_RageRetina, "resource/zombi/zombicrazy");
-	R_InitTexture(pimpl->m_pTexture_SprintRetina, "resource/zombi/zombispeedup");
-	R_InitTexture(pimpl->m_pTexture_DamageDoubleRetina, "resource/zombi/damagedouble");
+	if(!pimpl->m_pTexture_RageRetina)
+		pimpl->m_pTexture_RageRetina = R_LoadTextureShared("resource/zombi/zombicrazy");
 	return 1;
 }
 
@@ -116,49 +94,23 @@ int CHudZB2::Draw(float time)
 	return 1;
 }
 
-void CHudZB2::Think()
+void CHudZB2::Think(void)
 {
 	pimpl->for_each(&IBaseHudSub::Think);
 }
 
-void CHudZB2::Reset()
+void CHudZB2::Reset(void)
 {
 	pimpl->for_each(&IBaseHudSub::Reset);
 }
 
-void CHudZB2::InitHUDData()
+void CHudZB2::InitHUDData(void)
 {
 	pimpl->for_each(&IBaseHudSub::InitHUDData);
 }
 
-void CHudZB2::Shutdown()
+void CHudZB2::Shutdown(void)
 {
 	delete pimpl;
 	pimpl = nullptr;
-}
-
-bool CHudZB2::ActivateSkill(int iSlot)
-{
-	if (iSlot == 5)
-	{
-		gEngfuncs.pfnClientCmd("MoE_HumanSkill1");
-		return true;
-	}
-	else if (iSlot == 6)
-	{
-		gEngfuncs.pfnClientCmd("MoE_HumanSkill2");
-		return true;
-	}
-	else if (iSlot == 7)
-	{
-		gEngfuncs.pfnClientCmd("MoE_HumanSkill3");
-		return true;
-	}
-	else if (iSlot == 8)
-	{
-		gEngfuncs.pfnClientCmd("MoE_HumanSkill4");
-		return true;
-	}
-
-	return false;
 }
