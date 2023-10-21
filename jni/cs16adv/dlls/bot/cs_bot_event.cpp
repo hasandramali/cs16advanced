@@ -87,8 +87,6 @@ void CCSBot::OnEvent(GameEventType event, CBaseEntity *entity, CBaseEntity *othe
 			DecreaseMorale();
 		}
 		break;
-	default:
-		break;
 	}
 
 	if (!IsAlive())

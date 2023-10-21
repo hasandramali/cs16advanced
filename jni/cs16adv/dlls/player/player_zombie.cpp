@@ -1,18 +1,3 @@
-/*
-player_zombie.cpp - CSMoE Gameplay server : CBasePlayer impl for zombies
-Copyright (C) 2018 Moemod Hyakuya
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-*/
-
 #include "extdll.h"
 #include "util.h"
 #include "cbase.h"
@@ -20,7 +5,6 @@ GNU General Public License for more details.
 #include "gamerules.h"
 #include "client.h"
 
-#include "gamemode/mods.h"
 #include "gamemode/zb2/zb2_const.h"
 
 void CBasePlayer::MakeZombie(ZombieLevel iEvolutionLevel)
@@ -52,8 +36,33 @@ void CBasePlayer::MakeZombie(ZombieLevel iEvolutionLevel)
 	pev->armortype = ARMOR_TYPE_HELMET;
 	pev->armorvalue = 200;
 	pev->gravity = 0.83f;
+	ZombieSkill_Reset();
 	ResetMaxSpeed();
 
+	m_flTimeNextZombieHealthRecovery = gpGlobals->time + 3.0f;
+
+}
+
+void CBasePlayer::DeathSound_Zombie()
+{
+	// temporarily using pain sounds for death sounds
+	switch (RANDOM_LONG(1, 2))
+	{
+	case 1: EMIT_SOUND(ENT(pev), CHAN_VOICE, "zombi/zombi_death_1.wav", VOL_NORM, ATTN_NORM); break;
+	case 2: EMIT_SOUND(ENT(pev), CHAN_VOICE, "zombi/zombi_death_2.wav", VOL_NORM, ATTN_NORM); break;
+	}
+}
+
+void CBasePlayer::Pain_Zombie(int m_LastHitGroup, bool HasArmour)
+{
+	switch (RANDOM_LONG(0, 1))
+	{
+	case 0: EMIT_SOUND(ENT(pev), CHAN_VOICE, "zombi/zombi_hurt_01.wav", VOL_NORM, ATTN_NORM); break;
+	case 1: EMIT_SOUND(ENT(pev), CHAN_VOICE, "zombi/zombi_hurt_02.wav", VOL_NORM, ATTN_NORM); break;
+	}
+
+	// should not recover after damage taken...
+	m_flTimeNextZombieHealthRecovery = gpGlobals->time + 3.0f;
 }
 
 void PlayerZombie_Precache()
@@ -64,4 +73,40 @@ void PlayerZombie_Precache()
 	PRECACHE_SOUND("zombi/zombi_hurt_02.wav");
 
 	PRECACHE_SOUND("zombi/zombi_heal.wav");
+}
+
+// called by CMod_ZombieMod2::PlayerThink
+void CBasePlayer::Zombie_HealthRecoveryThink()
+{
+	if (!IsAlive() || !m_bIsZombie)
+		return;
+
+	if (pev->button & (IN_FORWARD | IN_BACK | IN_MOVELEFT | IN_MOVERIGHT))
+	{
+		m_flTimeNextZombieHealthRecovery = gpGlobals->time + 3.0f;
+	}
+
+	// cannot recover during using zombie skill.
+	if (m_iZombieSkillStatus == SKILL_STATUS_USING)
+		return;
+
+	if (gpGlobals->time > m_flTimeNextZombieHealthRecovery)
+	{
+		if (pev->max_health != pev->health)
+		{
+			float flRecoverValue = (m_iZombieLevel == ZOMBIE_LEVEL_HOST) ? 200.0f : 500.0f;
+
+			m_flTimeNextZombieHealthRecovery = gpGlobals->time + 1.0f;
+			pev->health = std::min(pev->max_health, pev->health + flRecoverValue);
+
+			// effects
+			CLIENT_COMMAND(this->edict(), "spk zombi/zombi_heal.wav\n");
+
+			MESSAGE_BEGIN(MSG_ONE, gmsgZB2Msg, NULL, this->pev);
+			WRITE_BYTE(ZB2_MESSAGE_HEALTH_RECOVERY);
+			MESSAGE_END();
+		}
+		
+		
+	}
 }

@@ -339,12 +339,6 @@ void CBasePlayer::Observer_CheckProperties()
 				WRITE_BYTE(m_iObserverWeapon);
 				WRITE_BYTE(0);	// clip
 			MESSAGE_END();
-
-			// fix observer client weapon prediction
-			MESSAGE_BEGIN(MSG_ONE, gmsgBTEWeapon, NULL, pev);
-			WRITE_BYTE(BTE_Weapon_Active); // type, reserved.
-			WRITE_STRING(target->m_pActiveItem ? target->m_pActiveItem->pszName() : "");
-			MESSAGE_END();
 		}
 
 		if (target->m_bHasC4)
@@ -481,12 +475,12 @@ void CBasePlayer::Observer_SetMode(int iMode)
 	pev->iuser1 = iMode;
 
 	// if we are not roaming, we need a valid target to track
-	if (iMode != OBS_ROAMING && m_hObserverTarget == nullptr)
+	if (iMode != OBS_ROAMING && m_hObserverTarget == NULL)
 	{
 		Observer_FindNextPlayer(false);
 
 		// if we didn't find a valid target switch to roaming
-		if (m_hObserverTarget == nullptr)
+		if (m_hObserverTarget == NULL)
 		{
 			ClientPrint(pev, HUD_PRINTCENTER, "#Spec_NoTarget");
 			pev->iuser1 = OBS_ROAMING;

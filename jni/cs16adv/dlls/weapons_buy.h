@@ -65,7 +65,6 @@ enum AmmoCostType
 	AMMO_9MM_PRICE		= 20,
 	AMMO_BUCKSHOT_PRICE	= 65,
 	AMMO_46MM_PRICE		= 20,
-	AMMO_50BMG_PRICE = 100,
 };
 
 enum WeaponCostType
@@ -124,7 +123,6 @@ enum AmmoBuyAmount
 	AMMO_9MM_BUY		= 30,
 	AMMO_BUCKSHOT_BUY	= 8,
 	AMMO_46MM_BUY = 30,
-	AMMO_50BMG_BUY = 5,
 };
 
 enum ItemCostType
@@ -142,26 +140,26 @@ enum ItemCostType
 struct AutoBuyInfoStruct
 {
 	int m_class;
-	const char *m_command;
-	const char *m_classname;
+	char *m_command;
+	char *m_classname;
 };
 
 struct WeaponAliasInfo
 {
-	const char *alias;
+	char *alias;
 	WeaponIdType id;
 };
 
 struct WeaponBuyAliasInfo
 {
-	const char *alias;
+	char *alias;
 	WeaponIdType id;
-	const char *failName;
+	char *failName;
 };
 
 struct WeaponClassAliasInfo
 {
-	const char *alias;
+	char *alias;
 	WeaponClassType id;
 };
 
@@ -174,7 +172,7 @@ struct WeaponInfoStruct
 	int gunClipSize;
 	int maxRounds;
 	int ammoType;
-	const char *entityName;
+	char *entityName;
 };
 
 struct WeaponBuyAmmoConfig

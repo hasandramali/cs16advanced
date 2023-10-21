@@ -13,25 +13,26 @@
 class CP228 : public CBasePlayerWeapon
 {
 public:
-	void Spawn() override;
-	void Precache() override;
-	int GetItemInfo(ItemInfo *p) override;
-	BOOL Deploy() override;
-	float GetMaxSpeed() override { return m_fMaxSpeed; }
-	int iItemSlot() override { return PISTOL_SLOT; }
-	void PrimaryAttack() override;
-	void SecondaryAttack() override;
-	void Reload() override;
-	void WeaponIdle() override;
-	BOOL UseDecrement() override {
+	virtual void Spawn();
+	virtual void Precache();
+	virtual int GetItemInfo(ItemInfo *p);
+	virtual BOOL Deploy();
+	virtual float GetMaxSpeed() { return m_fMaxSpeed; }
+	virtual int iItemSlot() { return PISTOL_SLOT; }
+	virtual void PrimaryAttack();
+	virtual void SecondaryAttack();
+	virtual void Reload();
+	virtual void WeaponIdle();
+	virtual BOOL UseDecrement()
+	{
 #ifdef CLIENT_WEAPONS
 		return TRUE;
 #else
 		return FALSE;
 #endif
 	}
-	BOOL IsPistol() override { return TRUE; }
-	KnockbackData GetKnockBackData() override { return { 85.0f, 100.0f, 100.0f, 80.0f, 0.8f }; }
+	virtual BOOL IsPistol() { return TRUE; }
+	virtual KnockbackData GetKnockBackData() override { return { 85.0f, 100.0f, 100.0f, 80.0f, 0.8f }; }
 
 public:
 	void P228Fire(float flSpread, float flCycleTime, BOOL fUseSemi);

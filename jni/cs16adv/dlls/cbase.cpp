@@ -388,16 +388,13 @@ void OnFreeEntPrivateData(edict_t *pEnt)
 
 	pEntity->UpdateOnRemove();
 	RemoveEntityHashValue(pEntity->pev, STRING(pEntity->pev->classname), CLASSNAME);
-	CBaseEntity::CheckEntityDestructor(pEntity);
 }
 
 NEW_DLL_FUNCTIONS gNewDLLFunctions =
 {
 	OnFreeEntPrivateData,
-	nullptr,
-	nullptr,
-	nullptr,
-	nullptr
+	NULL,
+	NULL
 };
 
 int GetNewDLLFunctions(NEW_DLL_FUNCTIONS *pFunctionTable, int *interfaceVersion)
@@ -668,6 +665,60 @@ void SaveReadFields(SAVERESTOREDATA *pSaveData, const char *pname, void *pBaseDa
 	restoreHelper.ReadFields(pname, pBaseData, pFields, fieldCount);
 }
 
+edict_t *EHANDLE::Get(void)
+{
+	if (!m_pent)
+		return NULL;
+
+	if (m_pent->serialnumber != m_serialnumber)
+		return NULL;
+
+	return m_pent;
+}
+
+edict_t *EHANDLE::Set(edict_t *pent)
+{
+	m_pent = pent;
+
+	if (pent)
+		m_serialnumber = m_pent->serialnumber;
+
+	return pent;
+}
+
+EHANDLE::operator CBaseEntity *(void)
+{
+	return (CBaseEntity *)GET_PRIVATE(Get());
+}
+
+CBaseEntity *EHANDLE::operator = (CBaseEntity *pEntity)
+{
+	if (pEntity)
+	{
+		m_pent = ENT(pEntity->pev);
+
+		if (m_pent)
+			m_serialnumber = m_pent->serialnumber;
+	}
+	else
+	{
+		m_pent = NULL;
+		m_serialnumber = 0;
+	}
+
+	return pEntity;
+}
+
+EHANDLE::operator int(void)
+{
+	return Get() != NULL;
+}
+
+CBaseEntity *EHANDLE::operator ->(void)
+{
+	return (CBaseEntity *)GET_PRIVATE(Get());
+}
+
 int CBaseEntity::TakeHealth(float flHealth, int bitsDamageType)
 {
 	if (!pev->takedamage)
@@ -877,7 +928,7 @@ int CBaseEntity::DamageDecal(int bitsDamageType)
 	return RANDOM_LONG(DECAL_GUNSHOT4, DECAL_GUNSHOT5);
 }
 
-CBaseEntity *CBaseEntity::Create(const char *szName, const Vector &vecOrigin, const Vector &vecAngles, edict_t *pentOwner)
+CBaseEntity *CBaseEntity::Create(char *szName, const Vector &vecOrigin, const Vector &vecAngles, edict_t *pentOwner)
 {
 	edict_t *pent = CREATE_NAMED_ENTITY(MAKE_STRING(szName));
 

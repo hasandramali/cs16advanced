@@ -9,21 +9,28 @@
 
 #include "string.h"
 
-CHudZBSLevel::CHudZBSLevel(void)
+int CHudZBSLevel::Init(void)
 {
+	m_iZBSBoard_BG = m_iZBSBoard_BG_Wall = 0;
+
 	m_iLevel_HP = m_iLevel_ATK = m_iLevel_Wall = 0;
+	return 1;
 }
 
 int CHudZBSLevel::VidInit(void)
 {
-	if (!m_pTexture_ZBSBoard_BG) 
-		m_pTexture_ZBSBoard_BG = R_LoadTextureUnique("resource/hud/zbs/zbslevelupbg");
-	if (!m_pTexture_ZBSBoard_BG_Wall) 
-		m_pTexture_ZBSBoard_BG_Wall = R_LoadTextureUnique("resource/hud/zbs/zbslevelupwallbg");
+	m_iZBSBoard_BG = gRenderAPI.GL_LoadTexture("resource/hud/zbs/zbslevelupbg", NULL, 0, TF_NEAREST | TF_NOPICMIP | TF_NOMIPMAP | TF_CLAMP);
+	m_iZBSBoard_BG_Wall = gRenderAPI.GL_LoadTexture("resource/hud/zbs/zbslevelupwallbg", NULL, 0, TF_NEAREST | TF_NOPICMIP | TF_NOMIPMAP | TF_CLAMP);
 	//m_iFlags |= HUD_DRAW;
 
 	m_iLevel_HP = m_iLevel_ATK = m_iLevel_Wall = 1;
 	return 1;
+}
+
+void CHudZBSLevel::Shutdown(void)
+{
+	gRenderAPI.GL_FreeTexture(m_iZBSBoard_BG);
+	gRenderAPI.GL_FreeTexture(m_iZBSBoard_BG_Wall);
 }
 
 int CHudZBSLevel::Draw(float time)
@@ -34,7 +41,8 @@ int CHudZBSLevel::Draw(float time)
 
 	gEngfuncs.pTriAPI->RenderMode(kRenderTransAlpha);
 	gEngfuncs.pTriAPI->Color4ub(255, 255, 255, 255);
-	m_pTexture_ZBSBoard_BG->Bind();
+	gRenderAPI.GL_SelectTexture(0);
+	gRenderAPI.GL_Bind(0, m_iZBSBoard_BG);
 	DrawUtils::Draw2DQuadScaled(x, y, x + 204, y + 85);
 	
 	const int r = 255, g = 255, b = 255;
@@ -69,7 +77,8 @@ int CHudZBSLevel::Draw(float time)
 	if (m_iLevel_Wall)
 	{
 		y -= 32;
-		m_pTexture_ZBSBoard_BG_Wall->Bind();
+		gRenderAPI.GL_SelectTexture(0);
+		gRenderAPI.GL_Bind(0, m_iZBSBoard_BG_Wall);
 		DrawUtils::Draw2DQuadScaled(x, y, x + 204, y + 28);
 
 		DrawUtils::DrawHudString(x + 20, y + 5, ScreenWidth, "Durability", r, g, b, flScale);

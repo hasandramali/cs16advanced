@@ -144,25 +144,6 @@ void WeaponsResource :: LoadWeaponSprites( WEAPON *pWeapon )
 	pWeapon->hAmmo2 = 0;
 
 	sprintf(sz, "sprites/%s.txt", pWeapon->szName);
-
-	if (!strncmp(pWeapon->szName, "knife_", 6))
-	{
-		char* buffer = (char*)gEngfuncs.COM_LoadFile((char*)sz, 5, nullptr);
-		char szSpriteName[32]{};
-		int x, y, w, h;
-		if (sscanf(buffer, "%s %d %d %d %d", szSpriteName, &x, &y, &w, &h) == 5)
-		{
-			sprintf(sz, "sprites/%s.spr", szSpriteName);
-			pWeapon->hInactive = pWeapon->hActive = SPR_Load(sz);
-			pWeapon->rcInactive = pWeapon->rcActive = { x, x + w, y, y + h };
-
-			gHR.iHistoryGap = max(gHR.iHistoryGap, pWeapon->rcActive.bottom - pWeapon->rcActive.top);
-		}
-
-		gEngfuncs.COM_FreeFile(buffer);
-		return;
-	}
-
 	client_sprite_t *pList = SPR_GetList(sz, &i);
 
 	if (!pList)
@@ -1182,15 +1163,16 @@ int CHudAmmo::Draw(float flTime)
 	if (m_fFade > 0)
 		m_fFade -= (gHUD.m_flTimeDelta * 20);
 
+	DrawUtils::UnpackRGB(r,g,b, RGB_YELLOWISH);
+
+	DrawUtils::ScaleColors(r, g, b, a );
+
 	// Does this weapon have a clip?
 	y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight/2;
 
 	// Does weapon have any ammo at all?
 	if (m_pWeapon->iAmmoType > 0)
 	{
-		DrawUtils::UnpackRGB(r, g, b, RGB_YELLOWISH);
-		DrawUtils::ScaleColors(r, g, b, a);
-
 		int iIconWidth = m_pWeapon->rcAmmo.right - m_pWeapon->rcAmmo.left;
 		
 		if (pw->iClip >= 0)
@@ -1219,13 +1201,6 @@ int CHudAmmo::Draw(float flTime)
 		}
 		else
 		{
-			if (pw->iSlot < 3)
-			{
-				// No clip weapon, draws blue special ammo
-				DrawUtils::UnpackRGB(r, g, b, RGB_LIGHTBLUE);
-				//DrawUtils::ScaleColors(r, g, b, a);
-			}
-
 			// SPR_Draw a bullets only line
 			x = ScreenWidth - 4 * AmmoWidth - iIconWidth;
 			x = DrawUtils::DrawHudNumber(x, y, iFlags | DHN_3DIGITS, gWR.CountAmmo(pw->iAmmoType), r, g, b);
@@ -1240,10 +1215,6 @@ int CHudAmmo::Draw(float flTime)
 	// Does weapon have seconday ammo?
 	if (pw->iAmmo2Type > 0) 
 	{
-		// No clip weapon, draws blue special ammo
-		DrawUtils::UnpackRGB(r, g, b, RGB_LIGHTBLUE);
-		//DrawUtils::ScaleColors(r, g, b, a);
-
 		int iIconWidth = m_pWeapon->rcAmmo2.right - m_pWeapon->rcAmmo2.left;
 
 		// Do we have secondary ammo?
@@ -1694,7 +1665,7 @@ int CHudAmmo::DrawWList(float flTime)
 	else 
 		iActiveSlot = gpActiveSel->iSlot;
 
-	x = gHUD.m_Radar.GetRadarSize() + 10; //!!!
+	x = gHUD.m_Radar.m_hRadar.rect.right + 10; //!!!
 	y = 10; //!!!
 	
 
@@ -1742,7 +1713,7 @@ int CHudAmmo::DrawWList(float flTime)
 
 
 	a = 128; //!!!
-	x = gHUD.m_Radar.GetRadarSize() + 10; //!!!;
+	x = gHUD.m_Radar.m_hRadar.rect.right + 10; //!!!;
 
 	// Draw all of the buckets
 	for (i = 0; i < MAX_WEAPON_SLOTS; i++)

@@ -102,11 +102,7 @@ public:
 	virtual int BloodColor() { return BLOOD_COLOR_RED; }
 	virtual void Touch(CBaseEntity *pOther);
 	virtual void Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
-
-	// fix RAII
-	CHostage();
-	~CHostage();
-
+   
 public:
 	void EXPORT IdleThink();
 	void EXPORT Remove();
@@ -197,7 +193,7 @@ public:
 		bool needsShuffle;
 	};
 
-	void AddSound(HostageChatterType type, const char *filename);
+	void AddSound(HostageChatterType type, char *filename);
 
 #ifdef _WIN32
 	#undef PlaySound

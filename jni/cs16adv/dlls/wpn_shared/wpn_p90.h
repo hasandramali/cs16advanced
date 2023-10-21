@@ -13,23 +13,24 @@
 class CP90 : public CBasePlayerWeapon
 {
 public:
-	void Spawn() override;
-	void Precache() override;
-	int GetItemInfo(ItemInfo *p) override;
-	BOOL Deploy() override;
-	float GetMaxSpeed() override { return P90_MAX_SPEED; }
-	int iItemSlot() override { return PRIMARY_WEAPON_SLOT; }
-	void PrimaryAttack() override;
-	void Reload() override;
-	void WeaponIdle() override;
-	BOOL UseDecrement() override {
+	virtual void Spawn();
+	virtual void Precache();
+	virtual int GetItemInfo(ItemInfo *p);
+	virtual BOOL Deploy();
+	virtual float GetMaxSpeed() { return P90_MAX_SPEED; }
+	virtual int iItemSlot() { return PRIMARY_WEAPON_SLOT; }
+	virtual void PrimaryAttack();
+	virtual void Reload();
+	virtual void WeaponIdle();
+	virtual BOOL UseDecrement()
+	{
 #ifdef CLIENT_WEAPONS
 		return TRUE;
 #else
 		return FALSE;
 #endif
 	}
-	KnockbackData GetKnockBackData() override { return { 250.0f, 200.0f, 250.0f, 90.0f, 0.7f }; }
+	virtual KnockbackData GetKnockBackData() override { return { 250.0f, 200.0f, 250.0f, 90.0f, 0.7f }; }
 
 public:
 	void P90Fire(float flSpread, float flCycleTime, BOOL fUseAutoAim);

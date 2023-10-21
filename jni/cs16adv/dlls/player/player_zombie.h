@@ -4,6 +4,8 @@
 #pragma once
 #endif
 
+#include "player_zombie_skill.h"
+
 enum ZombieLevel : int
 {
 	ZOMBIE_LEVEL_HOST,

@@ -42,7 +42,7 @@ NOXREF void UTIL_DPrintf(DebugOutputType outputType, char *pszMsg, ...)
 	}
 }
 
-void UTIL_DPrintf(const char *pszMsg, ...)
+void UTIL_DPrintf(char *pszMsg, ...)
 {
 	if (!IsDeveloper())
 		return;
@@ -77,7 +77,7 @@ void SetDebugFlag(const char *flagStr, bool state)
 	if (flagStr != NULL)
 	{
 		DebugOutputType flag;
-		for (size_t i = 0; i < ARRAYSIZE(outputLevel); ++i)
+		for (int i = 0; i < ARRAYSIZE(outputLevel); ++i)
 		{
 			DebugOutputLevel level = outputLevel[ i ];
 
@@ -104,7 +104,7 @@ void PrintDebugFlag(const char *flagStr)
 	if (flagStr != NULL)
 	{
 		DebugOutputType flag;
-		for (size_t i = 0; i < ARRAYSIZE(outputLevel); ++i)
+		for (int i = 0; i < ARRAYSIZE(outputLevel); ++i)
 		{
 			DebugOutputLevel level = outputLevel[ i ];
 
@@ -139,7 +139,7 @@ void UTIL_SetDprintfFlags(const char *flagStr)
 		PrintDebugFlags();
 }
 
-NOXREF void UTIL_BotDPrintf(const char *pszMsg, ...)
+NOXREF void UTIL_BotDPrintf(char *pszMsg, ...)
 {
 	if (!IsDeveloper())
 		return;
@@ -155,7 +155,7 @@ NOXREF void UTIL_BotDPrintf(const char *pszMsg, ...)
 	}
 }
 
-void UTIL_CareerDPrintf(const char *pszMsg, ...)
+void UTIL_CareerDPrintf(char *pszMsg, ...)
 {
 	if (!IsDeveloper())
 		return;
@@ -171,7 +171,7 @@ void UTIL_CareerDPrintf(const char *pszMsg, ...)
 	}
 }
 
-NOXREF void UTIL_TutorDPrintf(const char *pszMsg, ...)
+NOXREF void UTIL_TutorDPrintf(char *pszMsg, ...)
 {
 	if (!IsDeveloper())
 		return;
@@ -187,7 +187,7 @@ NOXREF void UTIL_TutorDPrintf(const char *pszMsg, ...)
 	}
 }
 
-NOXREF void UTIL_StatsDPrintf(const char *pszMsg, ...)
+NOXREF void UTIL_StatsDPrintf(char *pszMsg, ...)
 {
 	if (!IsDeveloper())
 		return;
@@ -203,7 +203,7 @@ NOXREF void UTIL_StatsDPrintf(const char *pszMsg, ...)
 	}
 }
 
-NOXREF void UTIL_HostageDPrintf(const char *pszMsg, ...)
+NOXREF void UTIL_HostageDPrintf(char *pszMsg, ...)
 {
 	if (!IsDeveloper())
 		return;

@@ -11,10 +11,12 @@ class CBaseEntity; // cbase.h
 class CBasePlayer; // player.h
 typedef struct entvars_s entvars_t; // progdefs.h
 
-class CMod_DeathMatch : public TBaseMod_RemoveObjects<TBaseMod_RandomSpawn<>>
+class CMod_DeathMatch : public IBaseMod_RemoveObjects, public IBaseMod_RandomSpawn
 {
 public:
 	CMod_DeathMatch();
+
+	using IBaseMod_RemoveObjects::IsAllowedToSpawn;
 
 public: // CHalfLifeMultiplay
 	BOOL IsTeamplay(void) override { return FALSE; }
@@ -26,9 +28,9 @@ public: // CHalfLifeMultiplay
 	void CheckWinConditions() override {}
 	void PlayerKilled(CBasePlayer *pVictim, entvars_t *pKiller, entvars_t *pInflictor) override;
 	void PlayerSpawn(CBasePlayer *pPlayer) override;
-	
+	bool CanPlayerBuy(CBasePlayer *player, bool display) override { return true; }
 public:
-	void InstallPlayerModStrategy(CBasePlayer *player) override;
+	bool FIgnoreBuyZone(CBasePlayer *player) override { return true; }
 
 public:
 	int CalcLeaderFrags();

@@ -252,7 +252,7 @@ void CSoundEnt::Initialize()
 int CSoundEnt::ISoundsInList(int iListType)
 {
 	int i;
-	int iThisSound = 0;
+	int iThisSound;
 
 	if (iListType == SOUNDLISTTYPE_FREE)
 	{

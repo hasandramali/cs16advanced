@@ -270,7 +270,6 @@ void MoveToState::OnUpdate(CCSBot *me)
 							case RIGHT:	me->StrafeRight(); break;
 							case FORWARD:	me->MoveForward(); break;
 							case BACKWARD:	me->MoveBackward(); break;
-							default: break;
 						}
 
 						// check if we are close enough to the hostage to talk to him
@@ -295,8 +294,6 @@ void MoveToState::OnUpdate(CCSBot *me)
 			}
 			break;
 		}
-		default:
-			break;
 	}
 
 	if (me->UpdatePathMovement() != CCSBot::PROGRESSING)
@@ -344,8 +341,6 @@ void MoveToState::OnUpdate(CCSBot *me)
 				}
 				break;
 			}
-			default:
-				break;
 		}
 
 		// default behavior when destination is reached

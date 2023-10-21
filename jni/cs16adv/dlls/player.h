@@ -113,6 +113,8 @@
 #define DHM_ROUND_CLEAR			(DHF_ROUND_STARTED | DHF_HOSTAGE_KILLED | DHF_FRIEND_KILLED | DHF_BOMB_RETRIEVED)
 #define DHM_CONNECT_CLEAR		(DHF_HOSTAGE_SEEN_FAR | DHF_HOSTAGE_SEEN_NEAR | DHF_HOSTAGE_USED | DHF_HOSTAGE_INJURED | DHF_FRIEND_SEEN | DHF_ENEMY_SEEN | DHF_FRIEND_INJURED | DHF_ENEMY_KILLED | DHF_AMMO_EXHAUSTED | DHF_IN_TARGET_ZONE | DHF_IN_RESCUE_ZONE | DHF_IN_ESCAPE_ZONE | DHF_IN_VIPSAFETY_ZONE | DHF_HOSTAGE_CTMOVE | DHF_SPEC_DUCK)
 
+#include "player/player_signal.h"
+
 #define IGNOREMSG_NONE			0
 #define IGNOREMSG_ENEMY			1
 #define IGNOREMSG_TEAM			2
@@ -153,11 +155,9 @@
 #define SOUND_FLASHLIGHT_OFF		"items/flashlight1.wav"
 
 #include "player/player_const.h"
+
 #include "player/player_zombie.h"
-#include "player/player_mod_strategy.h"
-#include "player/player_account.h"
-#include "player/player_signal.h"
-#include <memory>
+#include "player/player_human_level.h"
 
 struct WeaponStruct
 {
@@ -189,7 +189,7 @@ public:
 	virtual int Classify();
 public:
 	int m_iPose;
-	static const char *m_szPoses[4];
+	static char *m_szPoses[4];
 };
 
 class CSprayCan : public CBaseEntity
@@ -202,14 +202,12 @@ public:
 	}
 
 public:
-	using CBaseEntity::Spawn;
 	void Spawn(entvars_t *pevOwner);
 };
 
 class CBloodSplat : public CBaseEntity
 {
 public:
-	using CBaseEntity::Spawn;
 	void Spawn(entvars_t *pevOwner);
 	void Spray();
 };
@@ -217,83 +215,72 @@ public:
 class CBasePlayer : public CBaseMonster
 {
 public:
-#ifdef CLIENT_DLL
-	CBasePlayer() : m_rebuyString(nullptr) {}
-	~CBasePlayer()
-	{
-		delete[] m_rebuyString;
-	}
-#else
-	CBasePlayer();
-	~CBasePlayer() override;
-#endif
-
-	void Spawn() override;
+	virtual void Spawn();
 
 #ifdef CLIENT_DLL
-	void Precache(void) override { }
-	void Restart(void) override { }
-	int Save(CSave &save) override { return 1; }
-	int Restore(CRestore &restore) override { return 1; }
+	virtual void Precache(void) { }
+	virtual void Restart(void) { }
+	virtual int Save(CSave &save) { return 1; }
+	virtual int Restore(CRestore &restore) { return 1; }
 #else
-	void Precache() override;
-	int Save(CSave &save) override;
-	int Restore(CRestore &restore) override;
+	virtual void Precache();
+	virtual int Save(CSave &save);
+	virtual int Restore(CRestore &restore);
 #endif
-	int ObjectCaps() override { return (CBaseMonster::ObjectCaps() & ~FCAP_ACROSS_TRANSITION); }
+	virtual int ObjectCaps() { return (CBaseMonster::ObjectCaps() & ~FCAP_ACROSS_TRANSITION); }
 #ifdef CLIENT_DLL
-	int Classify() override { return 0; }
-	void TraceAttack(entvars_t *pevAttacker, float flDamage, Vector vecDir, TraceResult *ptr, int bitsDamageType) override { }
-	int TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType) override { return 0; }
-	int TakeHealth(float flHealth, int bitsDamageType) override { return 0; }
+	virtual int Classify() { return 0; }
+	virtual void TraceAttack(entvars_t *pevAttacker, float flDamage, Vector vecDir, TraceResult *ptr, int bitsDamageType) { }
+	virtual int TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType) { return 0; }
+	virtual int TakeHealth(float flHealth, int bitsDamageType) { return 0; }
 #else
-	int Classify() override;
-	void TraceAttack(entvars_t *pevAttacker, float flDamage, Vector vecDir, TraceResult *ptr, int bitsDamageType) override;
-	int TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType) override;
-	int TakeHealth(float flHealth, int bitsDamageType) override;
+	virtual int Classify();
+	virtual void TraceAttack(entvars_t *pevAttacker, float flDamage, Vector vecDir, TraceResult *ptr, int bitsDamageType);
+	virtual int TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType);
+	virtual int TakeHealth(float flHealth, int bitsDamageType);
 #endif
-	void Killed(entvars_t *pevAttacker, int iGib) override;
+	virtual void Killed(entvars_t *pevAttacker, int iGib);
 #ifdef CLIENT_DLL
-	void AddPoints(int score, BOOL bAllowNegativeScore) override {}
-	void AddPointsToTeam(int score, BOOL bAllowNegativeScore) override {}
-	BOOL AddPlayerItem(CBasePlayerItem *pItem) override { return false; }
-	BOOL RemovePlayerItem(CBasePlayerItem *pItem) override { return false; }
-	int GiveAmmo(int iAmount, const char *szName, int iMax) override { return 0; }
+	virtual void AddPoints(int score, BOOL bAllowNegativeScore) {}
+	virtual void AddPointsToTeam(int score, BOOL bAllowNegativeScore) {}
+	virtual BOOL AddPlayerItem(CBasePlayerItem *pItem) { return false; }
+	virtual BOOL RemovePlayerItem(CBasePlayerItem *pItem) { return false; }
+	virtual int GiveAmmo(int iAmount, char *szName, int iMax) { return 0; }
 #else
-	void AddPoints(int score, BOOL bAllowNegativeScore) override;
-	void AddPointsToTeam(int score, BOOL bAllowNegativeScore) override;
-	BOOL AddPlayerItem(CBasePlayerItem *pItem) override;
-	BOOL RemovePlayerItem(CBasePlayerItem *pItem) override;
-	int GiveAmmo(int iAmount, const char *szName, int iMax) override;
+	virtual void AddPoints(int score, BOOL bAllowNegativeScore);
+	virtual void AddPointsToTeam(int score, BOOL bAllowNegativeScore);
+	virtual BOOL AddPlayerItem(CBasePlayerItem *pItem);
+	virtual BOOL RemovePlayerItem(CBasePlayerItem *pItem);
+	virtual int GiveAmmo(int iAmount, char *szName, int iMax);
 #endif
-	void StartSneaking() override { m_tSneaking = gpGlobals->time - 1; }
-	void StopSneaking() override { m_tSneaking = gpGlobals->time + 30; }
-	BOOL IsSneaking() override { return m_tSneaking <= gpGlobals->time; }
-	BOOL IsAlive() override { return (pev->deadflag == DEAD_NO && pev->health > 0.0f); }
-	BOOL IsPlayer() override { return (pev->flags & FL_SPECTATOR) != FL_SPECTATOR; }
-	BOOL IsNetClient() override { return TRUE; }
+	virtual void StartSneaking() { m_tSneaking = gpGlobals->time - 1; }
+	virtual void StopSneaking() { m_tSneaking = gpGlobals->time + 30; }
+	virtual BOOL IsSneaking() { return m_tSneaking <= gpGlobals->time; }
+	virtual BOOL IsAlive() { return (pev->deadflag == DEAD_NO && pev->health > 0.0f); }
+	virtual BOOL IsPlayer() { return (pev->flags & FL_SPECTATOR) != FL_SPECTATOR; }
+	virtual BOOL IsNetClient() { return TRUE; }
 #ifdef CLIENT_DLL
-	const char *TeamID() override { return NULL; }
-	BOOL FBecomeProne() override { return TRUE; }
+	virtual const char *TeamID() { return NULL; }
+	virtual BOOL FBecomeProne() { return TRUE; }
 #else
-	const char *TeamID() override;
-	BOOL FBecomeProne() override;
+	virtual const char *TeamID();
+	virtual BOOL FBecomeProne();
 #endif
-	Vector BodyTarget(const Vector &posSrc) override { return Center() + pev->view_ofs * RANDOM_FLOAT(0.5, 1.1); }
+	virtual Vector BodyTarget(const Vector &posSrc) { return Center() + pev->view_ofs * RANDOM_FLOAT(0.5, 1.1); }
 #ifdef CLIENT_DLL
-	int Illumination() override { return 0; }
+	virtual int Illumination() { return 0; }
 #else
-	int Illumination() override;
+	virtual int Illumination();
 #endif
-	BOOL ShouldFadeOnDeath() override { return FALSE; }
+	virtual BOOL ShouldFadeOnDeath() { return FALSE; }
 #ifdef CLIENT_DLL
-	void ResetMaxSpeed() override {}
+	virtual void ResetMaxSpeed() {}
 	virtual void Jump() {}
 	virtual void Duck() {}
 	virtual void PreThink() {}
 	virtual void PostThink() {}
 #else
-	void ResetMaxSpeed() override;
+	virtual void ResetMaxSpeed();
 	virtual void Jump();
 	virtual void Duck();
 	virtual void PreThink();
@@ -401,7 +388,7 @@ public:
 	void ResetMenu();
 	void SyncRoundTimer();
 	void CheckSuitUpdate();
-	void SetSuitUpdate(const char *name = nullptr, int fgroup = 0, int iNoRepeatTime = 0);
+	void SetSuitUpdate(char *name = NULL, int fgroup = 0, int iNoRepeatTime = 0);
 	void UpdateGeigerCounter();
 	void CheckTimeBasedDamage();
 	void BarnacleVictimBitten(entvars_t *pevBarnacle);
@@ -505,7 +492,7 @@ public:
 	int m_iKevlar;
 	bool m_bNotKilled;
 	TeamName m_iTeam;
-	CPlayerAccount m_iAccount;
+	int m_iAccount;
 	bool m_bHasPrimary;
 	float m_flDeathThrowTime;
 	int m_iThrowDirection;
@@ -684,24 +671,57 @@ public:
 public:
 #ifdef CLIENT_DLL
 	virtual void MakeZombie(ZombieLevel iEvolutionLevel) {}
+	virtual void ZombieSkill_Init() {}
+	virtual void ZombieSkill_Check() {}
+	virtual void ZombieSkill_Start() {}
+	virtual void ZombieSkill_End() {}
+	virtual void ZombieSkill_Reset() {}
+	virtual void ZombieSkill_Effect() {}
+	virtual float Zombie_AdjustDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType) { return flDamage; }
 	virtual void Knockback(CBasePlayer *attacker, const KnockbackData &data) {}
 #else
 	virtual void MakeZombie(ZombieLevel iEvolutionLevel);
+	virtual void ZombieSkill_Init();
+	virtual void ZombieSkill_Check();
+	virtual void ZombieSkill_Start();
+	virtual void ZombieSkill_End();
+	virtual void ZombieSkill_Reset();
+	virtual void ZombieSkill_Effect();
+	virtual float Zombie_AdjustDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType);
 	virtual void Knockback(CBasePlayer *attacker, const KnockbackData &data) { ApplyKnockbackData(this, this->pev->origin - attacker->pev->origin, data); }
+	
 #endif
+
+	void DeathSound_Zombie();
+	void Pain_Zombie(int m_LastHitGroup, bool HasArmour);
 
 	void SpawnProtection_Check();
 	void SpawnProtection_Start(float flTime);
 	void SpawnProtection_End();
+
+	float HumanLevel_GetHealthBonus();
+	float HumanLevel_GetAttackBonus();
+	void HumanLevel_LevelUpHealth();
+	void HumanLevel_LevelUpAttack();
+	void HumanLevel_Reset();
+	void HumanLevel_UpdateHUD();
+
+	void Zombie_HealthRecoveryThink();
 
 public:
 	bool m_bIsZombie;
 	bool m_bSpawnProtection; // pack bools
 	ZombieLevel m_iZombieLevel;
 	float m_flTimeSpawnProctionExpires;
+	float m_flTimeNextZombieHealthRecovery;
+	int m_iZombieInfections;
 
-public:
-	std::unique_ptr<IBasePlayerModStrategy> m_pModStrategy;
+	ZombieSkillStatus m_iZombieSkillStatus;
+	float m_flTimeZombieSkillEnd;
+	float m_flTimeZombieSkillNext;
+	float m_flTimeZombieSkillEffect;
+
+	HumanLevelStruct m_iHumanLevel;
 };
 
 extern int gEvilImpulse101;

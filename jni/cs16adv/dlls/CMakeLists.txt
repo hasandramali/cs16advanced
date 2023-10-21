@@ -20,35 +20,40 @@
 # SOFTWARE.
 #
 
-cmake_minimum_required(VERSION 3.1.3)
+cmake_minimum_required(VERSION 2.6.0)
+
+# Install custom module path
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
 project (SERVER)
-set(CMAKE_CXX_STANDARD 11)
 
 if (APPLE)
-set (CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -stdlib=libc++")
+set (CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -std=c++11 -stdlib=libc++")
 elseif(MSVC)
 set (CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS}")
 else()
-set (CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -static-libstdc++")
+set (CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -std=c++11 -static-libstdc++")
 endif()
-
-set (SERVER_LIBRARY server)
 
 #--------------
 # USER DEFINES \
 ################\
-set(GAMEDIR "csmoe" CACHE STRING "Gamedir path")
+option(64BIT "Allow 64 Bit builds" OFF)
+option(USE_VGUI "Enable VGUI1. UNDONE" OFF)
+option(USE_VGUI2 "Enable VGUI2. UNDONE" OFF)
+option(USE_VOICEMGR "Enable VOICE MANAGER." OFF)
+option(GOLDSOURCE_SUPPORT "Build goldsource compatible client library" OFF)
+option(64BIT "Disable auto -m32 appending to compiler flags" OFF)
+set(GAMEDIR "valve" CACHE STRING "Gamedir path")
 set(SERVER_INSTALL_DIR "dlls" CACHE STRING "Where put server dll")
-if(NOT WIN32)
-set(SERVER_LIBRARY_NAME "cs" CACHE STRING "Library name for Linux/MacOS")
-else()
-set(SERVER_LIBRARY_NAME "mp" CACHE STRING "Library name for Windows")
-endif()
+set(CLIENT_INSTALL_DIR "cl_dlls" CACHE STRING "Where put client dll")
+set(SERVER_LIBRARY_NAME "cs" CACHE STRING "Library name for Linux/MacOS/Windows")
 
 #-----------------
 # MAIN BUILD CODE \
 ###################\
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
 set(HLDLL_SRCS
 	./airtank.cpp
@@ -166,17 +171,43 @@ set(HLDLL_SRCS
 	./player/player_zombie_skill.cpp
 	./weapons_data.cpp
 	./weapons_msg.cpp
-	./player/player_mod_strategy.cpp
-	./gamemode/zbs/monster_manager.cpp
-	./player/player_account.cpp
-	./cbase/cbase_memory.cpp
-	./gamemode/zbs/npc_group.cpp
-	./gamemode/mod_zb3.cpp
 	)
 
-file (GLOB HLWPN_SRCS
-	./wpn_shared/wpn_*.cpp
-	./wpn_shared/knife_*.cpp
+set(HLWPN_SRCS
+	./wpn_shared/wpn_ak47.cpp
+	./wpn_shared/wpn_aug.cpp
+	./wpn_shared/wpn_awp.cpp
+	./wpn_shared/wpn_c4.cpp
+	./wpn_shared/wpn_deagle.cpp
+	./wpn_shared/wpn_elite.cpp
+	./wpn_shared/wpn_famas.cpp
+	./wpn_shared/wpn_fiveseven.cpp
+	./wpn_shared/wpn_flashbang.cpp
+	./wpn_shared/wpn_g3sg1.cpp
+	./wpn_shared/wpn_galil.cpp
+	./wpn_shared/wpn_glock18.cpp
+	./wpn_shared/wpn_hegrenade.cpp
+	./wpn_shared/wpn_knife.cpp
+	./wpn_shared/wpn_m249.cpp
+	./wpn_shared/wpn_m3.cpp
+	./wpn_shared/wpn_m4a1.cpp
+	./wpn_shared/wpn_mac10.cpp
+	./wpn_shared/wpn_mp5navy.cpp
+	./wpn_shared/wpn_p228.cpp
+	./wpn_shared/wpn_p90.cpp
+	./wpn_shared/wpn_scout.cpp
+	./wpn_shared/wpn_sg550.cpp
+	./wpn_shared/wpn_sg552.cpp
+	./wpn_shared/wpn_smokegrenade.cpp
+	./wpn_shared/wpn_tmp.cpp
+	./wpn_shared/wpn_ump45.cpp
+	./wpn_shared/wpn_usp.cpp
+	./wpn_shared/wpn_xm1014.cpp
+
+	./wpn_shared/wpn_knife_zombi.cpp
+	./wpn_shared/wpn_ak47l.cpp
+	./wpn_shared/wpn_mp7a1d.cpp
+	./wpn_shared/wpn_deagled.cpp
 	)
 
 set(PM_SRCS
@@ -201,6 +232,9 @@ set(GAME_SHARED_SRCS
 set(PUBLIC_SRCS
 	../public/MemPool.cpp
     )
+
+set (SERVER_LIBRARY server)
+#file (GLOB SERVER_SOURCES *.cpp ../pm_shared/*.c)
 
 set (SERVER_SOURCES
 	${HLDLL_SRCS}
@@ -262,7 +296,12 @@ add_definitions(
 
 target_link_libraries( ${SERVER_LIBRARY} ${CMAKE_DL_LIBS} )
 
-set_target_properties(${SERVER_LIBRARY} PROPERTIES
-		PREFIX "" OUTPUT_NAME ${SERVER_LIBRARY_NAME})
 
-install( TARGETS ${SERVER_LIBRARY} DESTINATION ${CMAKE_INSTALL_PREFIX}/${GAMEDIR}/${SERVER_INSTALL_DIR})
+if(NOT WIN32)
+	set_target_properties(${SERVER_LIBRARY} PROPERTIES
+		PREFIX "" OUTPUT_NAME "cs")
+else()
+	# For Win32 we have split DLL names
+	set_target_properties(${SERVER_LIBRARY} PROPERTIES
+		OUTPUT_NAME "mp")
+endif()

@@ -228,7 +228,7 @@ void respawn(entvars_t *pev, BOOL fCopyCorpse)
 		if (mp->m_iTotalRoundsPlayed > 0)
 			mp->MarkSpawnSkipped();
 
-		CBasePlayer *pPlayer = GetClassPtr<CBasePlayer>(pev);
+		CBasePlayer *pPlayer = GetClassPtr((CBasePlayer *)pev);
 
 		if (mp->IsCareer() && mp->ShouldSkipSpawn() && pPlayer->IsAlive())
 			g_skipCareerInitialSpawn = true;
@@ -275,7 +275,7 @@ void EXT_FUNC ClientKill(edict_t *pEntity)
 	}
 }
 
-void ShowMenu(CBasePlayer *pPlayer, int bitsValidSlots, int nDisplayTime, BOOL fNeedMore, const char *pszText)
+void ShowMenu(CBasePlayer *pPlayer, int bitsValidSlots, int nDisplayTime, BOOL fNeedMore, char *pszText)
 {
 	MESSAGE_BEGIN(MSG_ONE, gmsgShowMenu, NULL, pPlayer->pev);
 		WRITE_SHORT(bitsValidSlots);
@@ -285,7 +285,7 @@ void ShowMenu(CBasePlayer *pPlayer, int bitsValidSlots, int nDisplayTime, BOOL f
 	MESSAGE_END();
 }
 
-void ShowVGUIMenu(CBasePlayer *pPlayer, int MenuType, int BitMask, const char *szOldMenu)
+void ShowVGUIMenu(CBasePlayer *pPlayer, int MenuType, int BitMask, char *szOldMenu)
 {
 	if (pPlayer->m_bVGUIMenus || MenuType > VGUI_Menu_Buy_Item)
 	{
@@ -311,7 +311,7 @@ NOXREF int CountTeams()
 		if (FNullEnt(pPlayer->edict()))
 			break;
 
-		CBasePlayer *player = GetClassPtr<CBasePlayer>(pPlayer->pev);
+		CBasePlayer *player = GetClassPtr((CBasePlayer *)pPlayer->pev);
 
 		if (player->m_iTeam == UNASSIGNED)
 			continue;
@@ -346,7 +346,7 @@ void ListPlayers(CBasePlayer *current)
 		if (pPlayer->pev->flags & FL_DORMANT)
 			continue;
 
-		CBasePlayer *player = GetClassPtr<CBasePlayer>(pPlayer->pev);
+		CBasePlayer *player = GetClassPtr((CBasePlayer *)pPlayer->pev);
 		int iUserID = GETPLAYERUSERID(ENT(player->pev));
 
 		Q_sprintf(cNumber, "%d", iUserID);
@@ -374,7 +374,7 @@ int CountTeamPlayers(int iTeam)
 		if (pPlayer->pev->flags & FL_DORMANT)
 			continue;
 
-		if (GetClassPtr<CBasePlayer>(pPlayer->pev)->m_iTeam == iTeam)
+		if (GetClassPtr((CBasePlayer *)pPlayer->pev)->m_iTeam == iTeam)
 			++i;
 	}
 
@@ -407,7 +407,7 @@ void ProcessKickVote(CBasePlayer *pVotingPlayer, CBasePlayer *pKickPlayer)
 		if (FNullEnt(pTempEntity->edict()))
 			break;
 
-		pTempPlayer = GetClassPtr<CBasePlayer>(pTempEntity->pev);
+		pTempPlayer = GetClassPtr((CBasePlayer *)pTempEntity->pev);
 
 		if (!pTempPlayer || pTempPlayer->m_iTeam == UNASSIGNED)
 			continue;
@@ -436,7 +436,7 @@ void ProcessKickVote(CBasePlayer *pVotingPlayer, CBasePlayer *pKickPlayer)
 			if (FNullEnt(pTempEntity->edict()))
 				break;
 
-			pTempPlayer = GetClassPtr<CBasePlayer>(pTempEntity->pev);
+			pTempPlayer = GetClassPtr((CBasePlayer *)pTempEntity->pev);
 
 			if (!pTempPlayer || pTempPlayer->m_iTeam == UNASSIGNED)
 				continue;
@@ -520,7 +520,7 @@ void EXT_FUNC ClientPutInServer(edict_t *pEntity)
 {
 
 	entvars_t *pev = &pEntity->v;
-	CBasePlayer *pPlayer = GetClassPtr<CBasePlayer>(pev);
+	CBasePlayer *pPlayer = GetClassPtr((CBasePlayer *)pev);
 	CHalfLifeMultiplay *mp = g_pGameRules;
 
 	pPlayer->SetCustomDecalFrames(-1);
@@ -629,6 +629,8 @@ void EXT_FUNC ClientPutInServer(edict_t *pEntity)
 	}
 
 	UTIL_ClientPrintAll(HUD_PRINTNOTIFY, "#Game_connected", (sName[0] != '\0') ? sName : "<unconnected>");
+
+	pPlayer->HumanLevel_Reset();
 }
 
 int Q_strlen_(const char *str)
@@ -654,7 +656,7 @@ void Host_Say(edict_t *pEntity, int teamonly)
 	bool bSenderDead = false;
 
 	entvars_t *pev = &pEntity->v;
-	CBasePlayer *player = GetClassPtr<CBasePlayer>(pev);
+	CBasePlayer *player = GetClassPtr((CBasePlayer *)pev);
 
 	if (player->m_flLastTalk != 0.0f && gpGlobals->time - player->m_flLastTalk < 0.66f)
 		return;
@@ -715,8 +717,8 @@ void Host_Say(edict_t *pEntity, int teamonly)
 		return;
 
 	const char *placeName = NULL;
-	const char *pszFormat = NULL;
-	const char *pszConsoleFormat = NULL;
+	char *pszFormat = NULL;
+	char *pszConsoleFormat = NULL;
 	bool consoleUsesPlaceName = false;
 
 	// team only
@@ -918,7 +920,7 @@ void Host_Say(edict_t *pEntity, int teamonly)
 		const char *temp = teamonly ? "say_team" : "say";
 		const char *deadText = (player->m_iTeam != SPECTATOR && bSenderDead) ? " (dead)" : "";
 
-		const char *szTeam = GetTeam(player->m_iTeam);
+		char *szTeam = GetTeam(player->m_iTeam);
 
 		UTIL_LogPrintf
 		(
@@ -1508,26 +1510,6 @@ void BuyMachineGun(CBasePlayer *pPlayer, int iSlot)
 	}
 }
 
-void ZbsUpgrade(CBasePlayer *pPlayer, int iSlot)
-{
-	if (!pPlayer->CanPlayerBuy(true))
-		return;
-
-	switch (iSlot)
-	{
-		case MENU_SLOT_UPGRADE_HP:
-		{
-			pPlayer->ClientCommand("zbs_hp_up");
-			break;
-		}
-		case MENU_SLOT_UPGRADE_ATK:
-		{
-			pPlayer->ClientCommand("zbs_atk_up");
-			break;
-		}
-	}
-}
-
 void BuyItem(CBasePlayer *pPlayer, int iSlot)
 {
 	//int iItem = 0;
@@ -1838,7 +1820,7 @@ void HandleMenu_ChooseAppearance(CBasePlayer *player, int slot)
 	struct
 	{
 		ModelName model_id;
-		const char *model_name;
+		char *model_name;
 		int model_name_index;
 
 	} appearance;
@@ -1994,8 +1976,8 @@ BOOL HandleMenu_ChooseTeam(CBasePlayer *player, int slot)
 	CHalfLifeMultiplay *mp = g_pGameRules;
 
 	int oldTeam;
-	const char *szOldTeam;
-	const char *szNewTeam;
+	char *szOldTeam;
+	char *szNewTeam;
 
 	// If this player is a VIP, don't allow him to switch teams/appearances unless the following conditions are met :
 	// a) There is another CT player who is in the queue to be a VIP
@@ -2120,8 +2102,12 @@ BOOL HandleMenu_ChooseTeam(CBasePlayer *player, int slot)
 			player->m_iJoiningState = JOINED;
 
 			// Reset money
-			player->m_iAccount.Reset();
-			player->m_iAccount.UpdateHUD(player);
+			player->m_iAccount = 0;
+
+			MESSAGE_BEGIN(MSG_ONE, gmsgMoney, NULL, player->pev);
+				WRITE_LONG(player->m_iAccount);
+				WRITE_BYTE(0);
+			MESSAGE_END();
 
 			MESSAGE_BEGIN(MSG_BROADCAST, gmsgScoreInfo);
 				WRITE_BYTE(ENTINDEX(player->edict()));
@@ -2281,9 +2267,6 @@ BOOL HandleMenu_ChooseTeam(CBasePlayer *player, int slot)
 				ShowVGUIMenu(player, VGUI_Menu_Class_T, (MENU_KEY_1 | MENU_KEY_2 | MENU_KEY_3 | MENU_KEY_4 | MENU_KEY_5 | MENU_KEY_6), "#Terrorist_Select");
 			else
 				ShowVGUIMenu(player, VGUI_Menu_Class_T, (MENU_KEY_1 | MENU_KEY_2 | MENU_KEY_3 | MENU_KEY_4 | MENU_KEY_5), "#Terrorist_Select");
-			break;
-
-		default:
 			break;
 		}
 	}
@@ -2502,7 +2485,7 @@ bool BuyGunAmmo(CBasePlayer *player, CBasePlayerItem *weapon, bool bBlinkMoney)
 
 	// Can only buy if the player does not already have full ammo
 	int iMax = weapon->iMaxAmmo1();
-	if (player->m_rgAmmo[nAmmo] >= player->m_pModStrategy->ComputeMaxAmmo(classname, iMax))
+	if (player->m_rgAmmo[nAmmo] >= g_pModRunning->ComputeMaxAmmo(player, classname, iMax))
 	{
 		return false;
 	}
@@ -2578,7 +2561,7 @@ CBaseEntity *EntityFromUserID(int userID)
 		if (FNullEnt(pTempEntity->edict()))
 			break;
 
-		CBasePlayer *pTempPlayer = GetClassPtr<CBasePlayer>(pTempEntity->pev);
+		CBasePlayer *pTempPlayer = GetClassPtr((CBasePlayer *)pTempEntity->pev);
 
 		if (pTempPlayer->m_iTeam != UNASSIGNED && userID == GETPLAYERUSERID(pTempEntity->edict()))
 		{
@@ -2599,7 +2582,7 @@ NOXREF int CountPlayersInServer()
 		if (FNullEnt(pTempEntity->edict()))
 			break;
 
-		CBasePlayer *pTempPlayer = GetClassPtr<CBasePlayer>(pTempEntity->pev);
+		CBasePlayer *pTempPlayer = GetClassPtr((CBasePlayer *)pTempEntity->pev);
 
 		if (pTempPlayer->m_iTeam != UNASSIGNED)
 		{
@@ -2883,7 +2866,7 @@ void EXT_FUNC ClientCommand(edict_t *pEntity)
 		return;
 
 	entvars_t *pev = &pEntity->v;
-	CBasePlayer *player = GetClassPtr<CBasePlayer>(pev);
+	CBasePlayer *player = GetClassPtr((CBasePlayer *)pev);
 
 	if (FStrEq(pcmd, "say"))
 	{
@@ -2958,7 +2941,7 @@ void EXT_FUNC ClientCommand(edict_t *pEntity)
 				CBaseEntity *pKickEntity = EntityFromUserID(iVoteID);
 				if (pKickEntity != NULL)
 				{
-					CBasePlayer *pKickPlayer = GetClassPtr<CBasePlayer>(pKickEntity->pev);
+					CBasePlayer *pKickPlayer = GetClassPtr((CBasePlayer *)pKickEntity->pev);
 
 					if (pKickPlayer->m_iTeam != player->m_iTeam)
 					{
@@ -3321,16 +3304,6 @@ void EXT_FUNC ClientCommand(edict_t *pEntity)
 							}
 							break;
 						}
-						case VGUI_MenuSlot_Zbs_Upgrade:
-						{
-							if (player->m_signals.GetState() & SIGNAL_BUY)
-							{
-								if (!player->m_bVGUIMenus)
-									ShowMenu(player, (MENU_KEY_1 | MENU_KEY_2 | MENU_KEY_0), -1, 0, "#ZbsUpgrade");
-								player->m_iMenu = Menu_ZbsUpgrade;
-							}
-							break;
-						}
 					}
 				}
 				break;
@@ -3398,15 +3371,6 @@ void EXT_FUNC ClientCommand(edict_t *pEntity)
 				Radio3(player, slot);
 				break;
 			}
-			case Menu_ZbsUpgrade:
-			{
-				if (!player->m_bVGUIMenus)
-				{
-					ZbsUpgrade(player, slot);
-				}
-				break;
-			}
-
 			default:
 				ALERT(at_console, "ClientCommand(): Invalid menu selected\n");
 				break;
@@ -3540,12 +3504,12 @@ void EXT_FUNC ClientCommand(edict_t *pEntity)
 	}
 	else
 	{
-		if (mp->ClientCommand_DeadOrAlive(GetClassPtr<CBasePlayer>(pev), pcmd))
+		if (mp->ClientCommand_DeadOrAlive(GetClassPtr((CBasePlayer *)pev), pcmd))
 			return;
 
 		if (TheBots != NULL)
 		{
-			if (TheBots->ClientCommand(GetClassPtr<CBasePlayer>(pev), pcmd))
+			if (TheBots->ClientCommand(GetClassPtr((CBasePlayer *)pev), pcmd))
 				return;
 		}
 
@@ -3677,7 +3641,7 @@ void EXT_FUNC ClientCommand(edict_t *pEntity)
 			else if (FStrEq(pcmd, "drop"))
 			{
 				// player is dropping an item.
-				if (g_pModRunning->ClientCommand(player, "BTE_ZombieSkill1") || player->m_pModStrategy->ClientCommand("BTE_ZombieSkill1"))
+				if (g_pModRunning->ClientCommand(player, "BTE_ZombieSkill1"))
 				{
 					// ...
 				}
@@ -3699,26 +3663,22 @@ void EXT_FUNC ClientCommand(edict_t *pEntity)
 			{
 #if 0
 				if (g_flWeaponCheat && CMD_ARGC() > 1)
-					GetClassPtr<CBasePlayer>(pev)->m_iFOV = Q_atoi(CMD_ARGV(1));
+					GetClassPtr((CBasePlayer *)pev)->m_iFOV = Q_atoi(CMD_ARGV(1));
 				else
-					CLIENT_PRINTF(pEntity, print_console, UTIL_VarArgs("\"fov\" is \"%d\"\n", (int)GetClassPtr<CBasePlayer>(pev)->m_iFOV));
+					CLIENT_PRINTF(pEntity, print_console, UTIL_VarArgs("\"fov\" is \"%d\"\n", (int)GetClassPtr((CBasePlayer *)pev)->m_iFOV));
 #endif
 			}
 			else if (FStrEq(pcmd, "use"))
 			{
-				GetClassPtr<CBasePlayer>(pev)->SelectItem(CMD_ARGV_(1));
+				GetClassPtr((CBasePlayer *)pev)->SelectItem(CMD_ARGV_(1));
 			}
 			else if (((pstr = Q_strstr(pcmd, "weapon_")) != NULL) && (pstr == pcmd))
 			{
-				GetClassPtr<CBasePlayer>(pev)->SelectItem(pcmd);
-			}
-			else if (((pstr = Q_strstr(pcmd, "knife_")) != NULL) && (pstr == pcmd))
-			{
-			GetClassPtr<CBasePlayer>(pev)->SelectItem(pcmd);
+				GetClassPtr((CBasePlayer *)pev)->SelectItem(pcmd);
 			}
 			else if (FStrEq(pcmd, "lastinv"))
 			{
-				GetClassPtr<CBasePlayer>(pev)->SelectLastItem();
+				GetClassPtr((CBasePlayer *)pev)->SelectLastItem();
 			}
 			else if (FStrEq(pcmd, "buyammo1"))
 			{
@@ -3772,10 +3732,7 @@ void EXT_FUNC ClientCommand(edict_t *pEntity)
 			{
 				if (player->m_signals.GetState() & SIGNAL_BUY)
 				{
-					if (g_pModRunning->DamageTrack() == DT_ZBS)
-						ShowVGUIMenu(player, VGUI_Menu_Buy, (MENU_KEY_1 | MENU_KEY_2 | MENU_KEY_3 | MENU_KEY_4 | MENU_KEY_5 | MENU_KEY_6 | MENU_KEY_7 | MENU_KEY_8 | MENU_KEY_9 | MENU_KEY_0), "#BuyZbs");
-					else
-						ShowVGUIMenu(player, VGUI_Menu_Buy, (MENU_KEY_1 | MENU_KEY_2 | MENU_KEY_3 | MENU_KEY_4 | MENU_KEY_5 | MENU_KEY_6 | MENU_KEY_7 | MENU_KEY_8 | MENU_KEY_0), "#Buy");
+					ShowVGUIMenu(player, VGUI_Menu_Buy, (MENU_KEY_1 | MENU_KEY_2 | MENU_KEY_3 | MENU_KEY_4 | MENU_KEY_5 | MENU_KEY_6 | MENU_KEY_7 | MENU_KEY_8 | MENU_KEY_0), "#Buy");
 					player->m_iMenu = Menu_Buy;
 
 					if (TheBots != NULL)
@@ -3834,6 +3791,14 @@ void EXT_FUNC ClientCommand(edict_t *pEntity)
 			{
 				player->SmartRadio();
 			}
+			else if (FStrEq(pcmd, "zbs_hp_up"))
+			{
+				player->HumanLevel_LevelUpHealth();
+			}
+			else if (FStrEq(pcmd, "zbs_atk_up"))
+			{
+				player->HumanLevel_LevelUpAttack();
+			}
 			else
 			{
 				if (HandleBuyAliasCommands(player, pcmd))
@@ -3842,8 +3807,7 @@ void EXT_FUNC ClientCommand(edict_t *pEntity)
 				if (HandleRadioAliasCommands(player, pcmd))
 					return;
 
-
-				if (!g_pGameRules->ClientCommand(GetClassPtr<CBasePlayer>(pev), pcmd) && !player->m_pModStrategy->ClientCommand(pcmd))
+				if (!g_pGameRules->ClientCommand(GetClassPtr((CBasePlayer *)pev), pcmd))
 				{
 					// tell the user they entered an unknown command
 					char command[128];
@@ -3922,7 +3886,7 @@ void EXT_FUNC ClientUserInfoChanged(edict_t *pEntity, char *infobuffer)
 		}
 	}
 
-	g_pGameRules->ClientUserInfoChanged(GetClassPtr<CBasePlayer>(&pEntity->v), infobuffer);
+	g_pGameRules->ClientUserInfoChanged(GetClassPtr((CBasePlayer *)&pEntity->v), infobuffer);
 }
 
 void EXT_FUNC ServerDeactivate()

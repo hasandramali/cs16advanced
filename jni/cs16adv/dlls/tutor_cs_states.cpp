@@ -54,7 +54,7 @@
 /*
 * Globals initialization
 */
-const char *const g_TutorStateStrings[20] =
+char *const g_TutorStateStrings[20] =
 {
 	"#Cstrike_TutorState_Undefined",
 	"#Cstrike_TutorState_Looking_For_Hostage",
@@ -120,7 +120,7 @@ bool CCSTutorStateSystem::UpdateState(GameEventType event, CBaseEntity *entity, 
 	return false;
 }
 
-const char * CCSTutorStateSystem::GetCurrentStateString()
+char *CCSTutorStateSystem::GetCurrentStateString()
 {
 	if (m_currentState != NULL)
 	{
@@ -191,7 +191,7 @@ int CCSTutorUndefinedState::HandlePlayerSpawned(CBaseEntity *entity, CBaseEntity
 	return 0;
 }
 
-const char * CCSTutorUndefinedState::GetStateString()
+char *CCSTutorUndefinedState::GetStateString()
 {
 	return NULL;
 }
@@ -214,14 +214,12 @@ int CCSTutorWaitingForStartState::CheckForStateTransition(GameEventType event, C
 		return HandlePlayerSpawned(entity, other);
 	case EVENT_BUY_TIME_START:
 		return HandleBuyTimeStart(entity, other);
-	default:
-		break;
 	}
 
 	return 0;
 }
 
-const char * CCSTutorWaitingForStartState::GetStateString()
+char *CCSTutorWaitingForStartState::GetStateString()
 {
 	return g_TutorStateStrings[m_type];
 }
@@ -269,7 +267,7 @@ int CCSTutorBuyMenuState::CheckForStateTransition(GameEventType event, CBaseEnti
 	return 0;
 }
 
-const char * CCSTutorBuyMenuState::GetStateString()
+char *CCSTutorBuyMenuState::GetStateString()
 {
 	return g_TutorStateStrings[m_type];
 }

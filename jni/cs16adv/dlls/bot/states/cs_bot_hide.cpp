@@ -276,8 +276,6 @@ void HideState::OnUpdate(CCSBot *me)
 					}
 				}
 			}
-			default:
-				break;
 		}
 
 		bool isSettledInSniper = (me->IsSniper() && m_isAtSpot) ? true : false;

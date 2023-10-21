@@ -7,29 +7,30 @@
 class CDeagleD : public CBasePlayerWeapon
 {
 public:
-	void Spawn() override;
-	void Precache() override;
-	int GetItemInfo(ItemInfo *p) override;
-	BOOL Deploy() override;
-	float GetMaxSpeed() override { return 250; }
-	int iItemSlot() override { return PISTOL_SLOT; }
-	void PrimaryAttack() override;
-	void Reload() override;
-	void WeaponIdle() override;
-	BOOL UseDecrement() override {
+	virtual void Spawn();
+	virtual void Precache();
+	virtual int GetItemInfo(ItemInfo *p);
+	virtual BOOL Deploy();
+	virtual float GetMaxSpeed() { return 250; }
+	virtual int iItemSlot() { return PISTOL_SLOT; }
+	virtual void PrimaryAttack();
+	virtual void Reload();
+	virtual void WeaponIdle();
+	virtual BOOL UseDecrement()
+	{
 #ifdef CLIENT_WEAPONS
 		return TRUE;
 #else
 		return FALSE;
 #endif
 	}
-	BOOL IsPistol() override { return TRUE; }
+	virtual BOOL IsPistol() { return TRUE; }
 
 	KnockbackData GetKnockBackData() override { return { 3000.0f, 500.0f, 1200.0f, 800.0f, 0.3f }; }
 	float GetArmorRatioModifier() override { return 1.5; }
 	const char *GetCSModelName() override { return "models/w_ddeagle.mdl"; }
 #ifndef CLIENT_DLL
-	WeaponBuyAmmoConfig GetBuyAmmoConfig() override { return ::GetBuyAmmoConfig(WEAPON_DEAGLE); }
+	WeaponBuyAmmoConfig GetBuyAmmoConfig() { return ::GetBuyAmmoConfig(WEAPON_DEAGLE); }
 #endif
 
 public:

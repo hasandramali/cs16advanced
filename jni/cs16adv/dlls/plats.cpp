@@ -315,7 +315,7 @@ void CFuncPlat::Spawn()
 
 void PlatSpawnInsideTrigger(entvars_t *pevPlatform)
 {
-	CreateClassPtr<CPlatTrigger>()->SpawnInsideTrigger(GetClassPtr<CFuncPlat>(pevPlatform));
+	GetClassPtr((CPlatTrigger *)NULL)->SpawnInsideTrigger(GetClassPtr((CFuncPlat *)pevPlatform));
 }
 
 // Create a trigger entity for a platform.
@@ -2219,7 +2219,7 @@ void CGunTarget::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE use
 	{
 		pev->takedamage = DAMAGE_AIM;
 		m_hTargetEnt = GetNextTarget();
-		if (m_hTargetEnt == nullptr)
+		if (m_hTargetEnt == NULL)
 			return;
 
 		pev->health = pev->max_health;

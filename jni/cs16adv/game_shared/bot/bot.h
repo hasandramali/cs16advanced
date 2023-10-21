@@ -57,7 +57,7 @@ T *CreateBot(const BotProfile *profile)
 	{
 		T *pBot = NULL;
 		FREE_PRIVATE(pentBot);
-		pBot = GetClassPtr<T>(VARS(pentBot));
+		pBot = GetClassPtr((T *)VARS(pentBot));
 		pBot->Initialize(profile);
 
 		return pBot;
@@ -71,21 +71,23 @@ public:
 	// constructor initializes all values to zero
 	CBot();
 
-	void Spawn() override;
+	virtual void Spawn();
 
 	// invoked when injured by something
-	int TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType) override {
+	virtual int TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType)
+	{
 		return CBasePlayer::TakeDamage(pevInflictor, pevAttacker, flDamage, bitsDamageType);
 	}
 	// invoked when killed
-	void Killed(entvars_t *pevAttacker, int iGib) override {
+	virtual void Killed(entvars_t *pevAttacker, int iGib)
+	{
 		CBasePlayer::Killed(pevAttacker, iGib);
 	}
-	void Think() override {};
-	BOOL IsBot() override { return true; }
-	Vector GetAutoaimVector(float flDelta) override;
+	virtual void Think() {};
+	virtual BOOL IsBot() { return true; }
+	virtual Vector GetAutoaimVector(float flDelta);
 	// invoked when in contact with a CWeaponBox
-	void OnTouchingWeapon(CWeaponBox *box) override {}
+	virtual void OnTouchingWeapon(CWeaponBox *box) {}
 	virtual bool Initialize(const BotProfile *profile);
 
 	virtual void SpawnBot() = 0;
@@ -107,8 +109,7 @@ public:
 
 	// returns true if jump was started
 	#define MUST_JUMP true
-	void Jump() override { Jump(false); }
-	virtual bool Jump(bool mustJump);
+	virtual bool Jump(bool mustJump = false);
 
 	// zero any MoveForward(), Jump(), etc
 	virtual void ClearMovement();
@@ -200,14 +201,15 @@ public:
 	bool IsLocalPlayerWatchingMe() const;
 
 	// output message to console
-	NOXREF void Print(const char *format,...) const;
+	NOXREF void Print(char *format,...) const;
 
 	// output message to console if we are being watched by the local player
-	void PrintIfWatched(const char *format,...) const;
+	void PrintIfWatched(char *format,...) const;
 
 	void BotThink();
-	BOOL IsNetClient() override { return false; }
 	bool IsNetClient() const { return false; }
+	int Save(CSave &save) const;
+	int Restore(CRestore &restor) const;
 
 	// return our personality profile
 	const BotProfile *GetProfile() const { return m_profile; }

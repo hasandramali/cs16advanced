@@ -13,12 +13,6 @@
 *
 ****/
 
-#ifndef CBASE_H
-#define CBASE_H
-#ifdef _WIN32
-#pragma once
-#endif
-
 #define FCAP_CUSTOMSAVE 0x00000001
 #define FCAP_ACROSS_TRANSITION 0x00000002
 #define FCAP_MUST_SPAWN 0x00000004
@@ -44,8 +38,8 @@
 
 edict_t *CREATE_NAMED_ENTITY(int iClass);
 void REMOVE_ENTITY(edict_t *e);
-void CONSOLE_ECHO(const char *pszMsg, ...);
-void CONSOLE_ECHO_LOGGED(const char *pszMsg, ...);
+void CONSOLE_ECHO(char *pszMsg, ...);
+void CONSOLE_ECHO_LOGGED(char *pszMsg, ...);
 
 #include "exportdef.h"
 
@@ -103,6 +97,10 @@ USE_TYPE;
 
 extern void FireTargets(const char *targetName, CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
 
+typedef void (CBaseEntity::*BASEPTR)(void);
+typedef void (CBaseEntity::*ENTITYFUNCPTR)(CBaseEntity *pOther);
+typedef void (CBaseEntity::*USEPTR)(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
+
 #define CLASS_NONE 0
 #define CLASS_MACHINE 1
 #define CLASS_PLAYER 2
@@ -128,25 +126,27 @@ class CBasePlayer;
 
 #define SF_NORESPAWN (1<<30)
 
-#include "ehandle.h"
-
-#include "ruleof350.h"
-#include <functional> // why not use c++11 std::function?
-
-class CBaseEntity : ruleof350::unique
+class EHANDLE
 {
-#ifndef CLIENT_DLL
 public:
-	static void CheckEntityDestructor(CBaseEntity *pEntity);
-	CBaseEntity();
+	edict_t * Get();
+	edict_t *Set(edict_t *pent);
 
-	virtual ~CBaseEntity();
-#else
-public:
-	CBaseEntity() = default;
-	~CBaseEntity() = default;
-#endif
+	operator int();
+	operator CBaseEntity*();
 
+	operator CBasePlayer*() { return static_cast<CBasePlayer *>(GET_PRIVATE(Get())); }
+
+	CBaseEntity *operator=(CBaseEntity *pEntity);
+	CBaseEntity *operator->();
+
+private:
+	edict_t * m_pent;
+	int m_serialnumber;
+};
+
+class CBaseEntity
+{
 public:
 	virtual void Spawn(void) {}
 	virtual void Precache(void) {}
@@ -192,8 +192,7 @@ public:
 	virtual void AddPointsToTeam(int score, BOOL bAllowNegativeScore) {}
 	virtual BOOL AddPlayerItem(CBasePlayerItem *pItem) { return 0; }
 	virtual BOOL RemovePlayerItem(CBasePlayerItem *pItem) { return 0; }
-	virtual int GiveAmmo(int iAmount, const char *szName, int iMax) { return -1; } // TODO : prevent from wrong override...
-	//virtual int GiveAmmo(int iAmount, char *szName, int iMax) final = delete;
+	virtual int GiveAmmo(int iAmount, char *szName, int iMax) { return -1; }
 	virtual float GetDelay(void) { return 0; }
 	virtual int IsMoving(void) { return pev->velocity != g_vecZero; }
 	virtual void OverrideReset(void) {}
@@ -268,7 +267,7 @@ public:
 	BOOL IsLockedByMaster(void) { return FALSE; }
 
 public:
-	static CBaseEntity *Instance(edict_t *pent) { return GET_PRIVATE<CBaseEntity>(pent ? pent : ENT(0)); }
+	static CBaseEntity *Instance(edict_t *pent) { return (CBaseEntity *)GET_PRIVATE(pent ? pent : ENT(0)); }
 	static CBaseEntity *Instance(entvars_t *instpev) { return Instance(ENT(instpev)); }
 	static CBaseEntity *Instance(int inst_eoffset) { return Instance(ENT(inst_eoffset)); }
 
@@ -292,73 +291,24 @@ public:
 		return NULL;
 	}
 
-	static CBaseEntity *Create(const char *szName, const Vector &vecOrigin, const Vector &vecAngles, edict_t *pentOwner = NULL);
+	static CBaseEntity *Create(char *szName, const Vector &vecOrigin, const Vector &vecAngles, edict_t *pentOwner = NULL);
 
 	edict_t *edict(void) { return ENT(pev); }
 	EOFFSET eoffset(void) { return OFFSET(pev); }
 	int entindex(void) { return ENTINDEX(edict()); }
 
-
-#ifndef CLIENT_DLL
 public:
-	// cbase_memory.cpp
+	void *operator new(size_t stAllocateBlock, entvars_t *newpev) { return ALLOC_PRIVATE(ENT(newpev), stAllocateBlock); }
 
-	// allocate memory for CBaseEntity with given pev
-	void *operator new(size_t stAllocateBlock, entvars_t *newpev) noexcept;
-	// free pev  when constructor throws, etc...
-	void operator delete(void *pMem, entvars_t *pev);
-	// automatically allocate pev
-	void *operator new(size_t stAllocateBlock);
-	// auto remove entity...
-	void operator delete(void *pMem);
+#if defined(_MSC_VER) && _MSC_VER >= 1200
+	void operator delete(void *pMem, entvars_t *pev) { pev->flags |= FL_KILLME; }
 #endif
-public:
-	template <typename T>
-	auto SetThink(void (T::*pfn)()) -> typename std::enable_if<std::is_base_of<CBaseEntity, T>::value>::type
-	{
-		m_pfnThink = static_cast<void (CBaseEntity::*)()>(pfn);
-	}
-	void SetThink(std::nullptr_t null)
-	{
-		m_pfnThink = null;
-	}
-	template <typename T>
-	auto SetTouch(void (T::*pfn)(CBaseEntity *pOther)) -> typename std::enable_if<std::is_base_of<CBaseEntity, T>::value>::type
-	{
-		m_pfnTouch = static_cast<void (CBaseEntity::*)(CBaseEntity *)>(pfn);
-	}
-	void SetTouch(std::nullptr_t null)
-	{
-		m_pfnThink = null;
-	}
-	template <typename T>
-	auto SetUse(void (T::*pfn)(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)) -> typename std::enable_if<std::is_base_of<CBaseEntity, T>::value>::type
-	{
-		m_pfnUse = static_cast<void (CBaseEntity::*)(CBaseEntity *, CBaseEntity *, USE_TYPE, float)>(pfn);
-	}
-	void SetUse(std::nullptr_t null)
-	{
-		m_pfnThink = null;
-	}
-	template <typename T>
-	auto SetBlocked(void (T::*pfn)(CBaseEntity *pOther)) -> typename std::enable_if<std::is_base_of<CBaseEntity, T>::value>::type
-	{
-		m_pfnBlocked = static_cast<void (CBaseEntity::*)(CBaseEntity *)>(pfn);
-	}
-	void SetBlocked(std::nullptr_t null)
-	{
-		m_pfnThink = null;
-	}
 
 public:
 	static TYPEDESCRIPTION m_SaveData[];
 
 public:
-#ifdef CLIENT_DLL
 	entvars_t * pev;
-#else
-	entvars_t * const pev;
-#endif
 	CBaseEntity *m_pGoalEnt;
 	CBaseEntity *m_pLink;
 	void (CBaseEntity::*m_pfnThink)(void);
@@ -393,7 +343,14 @@ public:
 	bool has_disconnected;
 };
 
-#include "cbase/cbase_memory.h"
+#define SetThink(a)\
+	m_pfnThink = static_cast<void (CBaseEntity::*)()>(a)
+#define SetTouch(a)\
+	m_pfnTouch = static_cast<void (CBaseEntity::*)(CBaseEntity *)>(a)
+#define SetUse(a)\
+	m_pfnUse = static_cast<void (CBaseEntity::*)(CBaseEntity *, CBaseEntity *, USE_TYPE, float)>(a)
+#define SetBlocked(a)\
+	m_pfnBlocked = static_cast<void (CBaseEntity::*)(CBaseEntity *)>(a)
 
 class CPointEntity : public CBaseEntity
 {
@@ -666,7 +623,7 @@ class CSound;
 
 #include "basemonster.h"
 
-const char *ButtonSound(int sound);
+char *ButtonSound(int sound);
 
 class CBaseButton : public CBaseToggle
 {
@@ -709,6 +666,24 @@ public:
 	int m_sounds;
 };
 
+template <class T> T *GetClassPtr(T *a)
+{
+	entvars_t *pev = (entvars_t *)a;
+
+	if (pev == NULL)
+		pev = VARS(CREATE_ENTITY());
+
+	a = (T *)GET_PRIVATE(ENT(pev));
+
+	if (a == NULL)
+	{
+		a = new(pev) T;
+		a->pev = pev;
+	}
+
+	return a;
+}
+
 class CWorld : public CBaseEntity
 {
 public:
@@ -727,5 +702,3 @@ public:
 	int m_iStartDist, m_iEndDist;
 	float m_fDensity;
 };
-
-#endif

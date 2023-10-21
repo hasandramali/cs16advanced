@@ -6,7 +6,6 @@
 #include "client.h"
 
 #include "supplybox.h"
-#include "gamemode/mods.h"
 
 #include <utility>
 
@@ -38,22 +37,19 @@ static std::pair<const char *, void(*)(CBasePlayer *p)> g_SupplyboxItems[]=
 	{ "Dual MP7A1", [](CBasePlayer *p) {
 			DropPrimary(p);
 			p->GiveNamedItem("weapon_mp7a1d");
-			int iAmount = p->m_pModStrategy->ComputeMaxAmmo("46mm", MAX_AMMO_46MM);
-			p->GiveAmmo(iAmount, "46mm", iAmount);
+			p->GiveAmmo(MAX_AMMO_46MM, "46mm", MAX_AMMO_46MM);
 		}
 	},
 	{ "AK-47 60R", [](CBasePlayer *p) {
 			DropPrimary(p);
 			p->GiveNamedItem("weapon_ak47l");
-			int iAmount = p->m_pModStrategy->ComputeMaxAmmo("762Nato", MAX_AMMO_762NATO);
-			p->GiveAmmo(iAmount, "762Nato", iAmount);
+			p->GiveAmmo(MAX_AMMO_762NATO, "762Nato", MAX_AMMO_762NATO);
 		}
 	},
 	{ "Dual Desert Eagle", [](CBasePlayer *p) {
 			DropSecondary(p);
 			p->GiveNamedItem("weapon_deagled");
-			int iAmount = p->m_pModStrategy->ComputeMaxAmmo("50ae", MAX_AMMO_50AE);
-			p->GiveAmmo(iAmount, "762Nato", iAmount);
+			p->GiveAmmo(MAX_AMMO_50AE, "50ae", MAX_AMMO_50AE);
 		}
 	}
 };
@@ -141,7 +137,7 @@ void CSupplyBox::SendPositionMsg()
 		if (pEntity->pev->flags == FL_DORMANT)
 			continue;
 
-		CBasePlayer *pTempPlayer = static_cast<CBasePlayer *>(pEntity);
+		CBasePlayer *pTempPlayer = GetClassPtr((CBasePlayer *)pEntity->pev);
 
 		if (pTempPlayer->pev->deadflag == DEAD_NO && pTempPlayer->m_iTeam == CT)
 		{

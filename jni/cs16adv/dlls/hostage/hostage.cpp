@@ -73,22 +73,6 @@ LINK_ENTITY_TO_CLASS(hostage_entity, CHostage);
 
 LINK_ENTITY_TO_CLASS(monster_scientist, CHostage);
 
-CHostage::CHostage()
-{
-
-}
-
-CHostage::~CHostage() 
-{
-	CLocalNav *pPrevNav = m_LocalNav;
-	m_LocalNav = nullptr;
-	delete pPrevNav;
-
-	CHostageImprov *pPrevImprov = m_improv;
-	m_improv = nullptr;
-	delete pPrevImprov;
-}
-
 void CHostage::Spawn()
 {
 	if (!g_pHostages)
@@ -304,7 +288,7 @@ void CHostage::IdleThink()
 				player = (CBasePlayer *)m_improv->GetFollowLeader();
 		}
 		else
-			player = GetClassPtr<CBasePlayer>(m_hTargetEnt->pev);
+			player = GetClassPtr((CBasePlayer *)m_hTargetEnt->pev);
 
 		if (player == NULL || player->m_iTeam == CT)
 		{
@@ -501,7 +485,7 @@ int CHostage::TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, float 
 
 	if (pevAttacker != NULL)
 	{
-		CBaseEntity *pAttackingEnt = GetClassPtr<CBaseEntity>(pevAttacker);
+		CBaseEntity *pAttackingEnt = GetClassPtr((CBaseEntity *)pevAttacker);
 
 		if (pAttackingEnt->Classify() == CLASS_VEHICLE)
 		{
@@ -515,7 +499,7 @@ int CHostage::TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, float 
 
 		if (pAttackingEnt->IsPlayer())
 		{
-			pAttacker = GetClassPtr<CBasePlayer>(pevAttacker);
+			pAttacker = GetClassPtr((CBasePlayer *)pevAttacker);
 		}
 	}
 
@@ -869,7 +853,7 @@ void CHostage::DoFollow()
 	float flRadius = 0;
 	float flDistToDest;
 
-	if (m_hTargetEnt == nullptr)
+	if (m_hTargetEnt == NULL)
 		return;
 
 	if (cv_hostage_stop.value > 0.0)
@@ -880,7 +864,7 @@ void CHostage::DoFollow()
 		return;
 	}
 
-	pFollowing = GetClassPtr<CBaseEntity>(m_hTargetEnt->pev);
+	pFollowing = GetClassPtr((CBaseEntity *)m_hTargetEnt->pev);
 	m_LocalNav->SetTargetEnt(pFollowing);
 
 	vecDest = pFollowing->pev->origin;
@@ -973,7 +957,7 @@ void CHostage::MoveToward(const Vector &vecLoc)
 	Vector vecAng;
 	float flDist;
 
-	pFollowing = GetClassPtr<CBaseEntity>(m_hTargetEnt->pev);
+	pFollowing = GetClassPtr((CBaseEntity *)m_hTargetEnt->pev);
 	vecMove = vecLoc - pev->origin;
 	vecAng = UTIL_VecToAngles(vecMove);
 	vecAng = Vector(0, vecAng.y, 0);
@@ -1036,7 +1020,7 @@ void CHostage::NavReady()
 		return;
 	}
 
-	pFollowing = GetClassPtr<CBaseEntity>(m_hTargetEnt->pev);
+	pFollowing = GetClassPtr((CBaseEntity *)m_hTargetEnt->pev);
 	vecDest = pFollowing->pev->origin;
 
 	if (!(pFollowing->pev->flags & FL_ONGROUND))
@@ -1095,7 +1079,7 @@ void CHostage::SendHostagePositionMsg()
 		if (pEntity->pev->flags == FL_DORMANT)
 			continue;
 
-		CBasePlayer *pTempPlayer = GetClassPtr<CBasePlayer>(pEntity->pev);
+		CBasePlayer *pTempPlayer = GetClassPtr((CBasePlayer *)pEntity->pev);
 
 		if (pTempPlayer->pev->deadflag == DEAD_NO && pTempPlayer->m_iTeam == CT)
 		{
@@ -1125,7 +1109,7 @@ void CHostage::SendHostageEventMsg()
 		if (pEntity->pev->flags == FL_DORMANT)
 			continue;
 
-		CBasePlayer *pTempPlayer = GetClassPtr<CBasePlayer>(pEntity->pev);
+		CBasePlayer *pTempPlayer = GetClassPtr((CBasePlayer *)pEntity->pev);
 
 		if (pTempPlayer->pev->deadflag == DEAD_NO && pTempPlayer->m_iTeam == CT)
 		{
@@ -1155,7 +1139,7 @@ void CHostage::Wiggle()
 		Vector(-50, -50, 0)
 	};
 
-	for (size_t i = 0; i < ARRAYSIZE(wiggle_directions); ++i)
+	for (int i = 0; i < ARRAYSIZE(wiggle_directions); ++i)
 	{
 		Vector dest = pev->origin + wiggle_directions[i];
 
@@ -1252,12 +1236,12 @@ CBaseEntity *CHostage::GetLeader()				// return our leader, or NULL
 
 bool CHostage::IsFollowing(const CBaseEntity *entity)
 {
-	if (m_improv != nullptr)
+	if (m_improv != NULL)
 	{
 		return m_improv->IsFollowing();
 	}
 
-	if ((entity == nullptr && m_hTargetEnt == nullptr) || (entity != nullptr && m_hTargetEnt != entity))
+	if ((entity == NULL && m_hTargetEnt == NULL) || (entity != NULL && m_hTargetEnt != entity))
 		return false;
 
 	if (m_State != FOLLOW)
@@ -1534,7 +1518,7 @@ void CHostageManager::OnEvent(GameEventType event, CBaseEntity *entity, CBaseEnt
 
 SimpleChatter::SimpleChatter()
 {
-	for (size_t i = 0; i < ARRAYSIZE(m_chatter); ++i)
+	for (int i = 0; i < ARRAYSIZE(m_chatter); ++i)
 	{
 		m_chatter[i].count = 0;
 		m_chatter[i].index = 0;
@@ -1544,7 +1528,7 @@ SimpleChatter::SimpleChatter()
 
 SimpleChatter::~SimpleChatter()
 {
-	for (size_t i = 0; i < ARRAYSIZE(m_chatter); ++i)
+	for (int i = 0; i < ARRAYSIZE(m_chatter); ++i)
 	{
 		for (int f = 0; f < m_chatter[i].count; f++)
 		{
@@ -1556,7 +1540,7 @@ SimpleChatter::~SimpleChatter()
 	}
 }
 
-void SimpleChatter::AddSound(HostageChatterType type, const char *filename)
+void SimpleChatter::AddSound(HostageChatterType type, char *filename)
 {
 	ChatterSet *chatter;
 	char actualFilename[128];

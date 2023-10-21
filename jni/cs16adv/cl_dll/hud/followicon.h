@@ -16,8 +16,6 @@
 #pragma once
 #include <vector>
 
-#include "r_texture.h"
-
 class CHudFollowIcon : public CHudBase
 {
 public:
@@ -29,7 +27,7 @@ public:
 
 public:
 	int m_iBombTargetsNum;
-	UniqueTexture m_pTexture_BombAB[2];
-	UniqueTexture m_pTexture_Supplybox;
+	int m_iBombAB[2];
+	int m_iSupplybox;
 	Vector m_vecBombTargets[2];
 };

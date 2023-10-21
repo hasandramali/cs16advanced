@@ -734,7 +734,7 @@ void CCSTutor::ProcessShownDeathsForEvent(TutorMessageEvent *event)
 		return;
 	}
 
-	for (size_t i = 0; i < ARRAYSIZE(m_playerDeathInfo); ++i)
+	for (int i = 0; i < ARRAYSIZE(m_playerDeathInfo); ++i)
 	{
 		if (m_playerDeathInfo[i].m_event == event)
 		{
@@ -910,8 +910,6 @@ TutorMessageEvent *CCSTutor::CreateTutorMessageEvent(TutorMessageID mid, CBaseEn
 				ConstructRecentDeathsList(CT, teammateList, sizeof(teammateList), event);
 				event->AddParameter(teammateList);
 				break;
-			default:
-				break;
 			}
 			break;
 		}
@@ -941,8 +939,6 @@ TutorMessageEvent *CCSTutor::CreateTutorMessageEvent(TutorMessageID mid, CBaseEn
 				event->AddParameter(numTStr);
 				ConstructRecentDeathsList(CT, teammateList, sizeof(teammateList), event);
 				event->AddParameter(teammateList);
-				break;
-			default:
 				break;
 			}
 			break;
@@ -986,8 +982,6 @@ TutorMessageEvent *CCSTutor::CreateTutorMessageEvent(TutorMessageID mid, CBaseEn
 				case TERRORIST:
 					numT--;
 					break;
-				default:
-					break;
 				}
 			}
 
@@ -1001,8 +995,6 @@ TutorMessageEvent *CCSTutor::CreateTutorMessageEvent(TutorMessageID mid, CBaseEn
 				break;
 			case TERRORIST:
 				event->AddParameter(numTStr);
-				break;
-			default:
 				break;
 			}
 
@@ -1101,7 +1093,7 @@ void CCSTutor::ClearEventList()
 
 void CCSTutor::DeleteEvent(TutorMessageEvent *event)
 {
-	for (size_t i = 0; i < ARRAYSIZE(m_playerDeathInfo); ++i)
+	for (int i = 0; i < ARRAYSIZE(m_playerDeathInfo); ++i)
 	{
 		if (m_playerDeathInfo[i].m_event == event)
 		{
@@ -1568,8 +1560,6 @@ void CCSTutor::HandlePlayerDied(CBaseEntity *entity, CBaseEntity *other)
 					}
 					break;
 				}
-				default:
-					break;
 			}
 		}
 		else
@@ -1609,8 +1599,6 @@ void CCSTutor::HandlePlayerDied(CBaseEntity *entity, CBaseEntity *other)
 					}
 					break;
 				}
-				default:
-					break;
 			}
 		}
 	}
@@ -1684,8 +1672,6 @@ void CCSTutor::HandlePlayerDied(CBaseEntity *entity, CBaseEntity *other)
 
 				break;
 			}
-			default:
-				break;
 		}
 	}
 	else
@@ -1725,8 +1711,6 @@ void CCSTutor::HandlePlayerDied(CBaseEntity *entity, CBaseEntity *other)
 				}
 				break;
 			}
-			default:
-				break;
 		}
 	}
 }
@@ -2352,8 +2336,6 @@ void CCSTutor::GetNumPlayersAliveOnTeams(int &numT, int &numCT)
 		case TERRORIST:
 			numT++;
 			break;
-		default:
-			break;
 		}
 	}
 }
@@ -2447,8 +2429,6 @@ void CCSTutor::CheckForBombViewable()
 				}
 				break;
 			}
-			default:
-				break;
 		}
 	}
 	else
@@ -2496,8 +2476,6 @@ void CCSTutor::CheckForBombViewable()
 							}
 							break;
 						}
-						default:
-							break;
 					}
 				}
 			}
@@ -2525,8 +2503,6 @@ void CCSTutor::CheckForBombViewable()
 						}
 						break;
 					}
-					default:
-						break;
 				}
 			}
 		}
@@ -2565,8 +2541,6 @@ void CCSTutor::CheckForBombsiteViewable()
 				}
 				break;
 			}
-			default:
-				break;
 		}
 
 		TutorMessage *definition = GetTutorMessageDefinition(mid);
@@ -2705,8 +2679,6 @@ void CCSTutor::CheckForHostageViewable()
 					CreateAndAddEventToList(YOU_SEE_HOSTAGE_T);
 					break;
 				}
-				default:
-					break;
 			}
 		}
 	}
@@ -2732,8 +2704,6 @@ void CCSTutor::CheckForTimeRunningOut()
 		case TERRORIST:
 			CreateAndAddEventToList(TIME_RUNNING_OUT_DE_T);
 			break;
-		default:
-			break;
 		}
 	}
 	else if (IsHostageMap())
@@ -2745,8 +2715,6 @@ void CCSTutor::CheckForTimeRunningOut()
 			break;
 		case TERRORIST:
 			CreateAndAddEventToList(TIME_RUNNING_OUT_CS_T);
-			break;
-		default:
 			break;
 		}
 	}
@@ -3210,7 +3178,7 @@ bool CCSTutor::IsBombMap()
 
 void CCSTutor::ResetPlayerDeathInfo()
 {
-	for (size_t i = 0; i < ARRAYSIZE(m_playerDeathInfo); ++i)
+	for (int i = 0; i < ARRAYSIZE(m_playerDeathInfo); ++i)
 	{
 		m_playerDeathInfo[i].m_hasBeenShown = false;
 		m_playerDeathInfo[i].m_event = NULL;
@@ -3251,7 +3219,7 @@ void CCSTutor::ConstructRecentDeathsList(TeamName team, char *buf, int buflen, T
 
 void CCSTutor::TransferDeathEvents(TutorMessageEvent *oldEvent, TutorMessageEvent *newEvent)
 {
-	for (size_t i = 0; i < ARRAYSIZE(m_playerDeathInfo); ++i)
+	for (int i = 0; i < ARRAYSIZE(m_playerDeathInfo); ++i)
 	{
 		if (m_playerDeathInfo[i].m_event == oldEvent)
 		{

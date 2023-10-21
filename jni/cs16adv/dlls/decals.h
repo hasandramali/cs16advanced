@@ -80,7 +80,7 @@ enum decal_e
 
 typedef struct
 {
-	const char *name;
+	char *name;
 	int index;
 
 } DLL_DECALLIST;

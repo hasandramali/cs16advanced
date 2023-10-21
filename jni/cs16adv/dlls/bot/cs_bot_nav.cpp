@@ -407,8 +407,6 @@ void CCSBot::Wiggle()
 	case BACKWARD:
 		MoveBackward();
 		break;
-	default:
-		break;
 	}
 
 	if (gpGlobals->time >= m_stuckJumpTimestamp)

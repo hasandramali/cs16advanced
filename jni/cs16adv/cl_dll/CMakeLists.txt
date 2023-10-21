@@ -20,18 +20,15 @@
 # SOFTWARE.
 #
 
-cmake_minimum_required(VERSION 3.1.3)
-
-project (client)
-
-set(CMAKE_CXX_STANDARD 11)
+cmake_minimum_required(VERSION 2.6.0)
+project (CLDLL)
 
 if (APPLE)
-set (CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -stdlib=libc++")
+set (CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -std=c++11 -stdlib=libc++")
 elseif(MSVC)
 set (CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS}")
 else()
-set (CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -static-libstdc++")
+set (CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -std=c++11 -static-libstdc++")
 endif()
 set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ")
 set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
@@ -42,35 +39,84 @@ set (CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} ")
 
 set (CLDLL_LIBRARY client)
 
-#--------------
-# USER DEFINES \
-################\
-set(GAMEDIR "csmoe" CACHE STRING "Gamedir path")
-set(CLIENT_INSTALL_DIR "cl_dlls" CACHE STRING "Where put client dll")
-if(XASH_64BIT)
-	set(CLIENT_LIBRARY_NAME "client64" CACHE STRING "Library name for 64bit")
-else()
-	set(CLIENT_LIBRARY_NAME "client" CACHE STRING "Library name for 32bit")
-endif()
-
-#-----------------
-# MAIN BUILD CODE \
-###################\
-
-file (GLOB WEAPONEVENT_SRCS
-	./ev_common.cpp
+set (WEAPONEVENT_SRCS
 	./events/ev_cs16.cpp
+	./events/event_ak47.cpp
+	./events/event_aug.cpp
+	./events/event_awp.cpp
+	./events/event_createexplo.cpp
+	./events/event_createsmoke.cpp
+	./events/event_deagle.cpp
+	./events/event_decal_reset.cpp
+	./events/event_elite_left.cpp
+	./events/event_elite_right.cpp
+	./events/event_famas.cpp
+	./events/event_fiveseven.cpp
+	./events/event_g3sg1.cpp
+	./events/event_galil.cpp
+	./events/event_glock18.cpp
+	./events/event_knife.cpp
+	./events/event_m249.cpp
+	./events/event_m3.cpp
+	./events/event_m4a1.cpp
+	./events/event_mac10.cpp
+	./events/event_mp5n.cpp
+	./events/event_p228.cpp
+	./events/event_p90.cpp
+	./events/event_scout.cpp
+	./events/event_sg550.cpp
+	./events/event_sg552.cpp
+	./events/event_tmp.cpp
+	./events/event_ump45.cpp
+	./events/event_usp.cpp
+	./events/event_vehicle.cpp
+	./events/event_xm1014.cpp
 	./events/hl_events.cpp
-	./events/event_*.cpp
+	./ev_common.cpp
+
+	./events/event_ak47l.cpp
+	./events/event_mp7a1d.cpp
+	./events/event_deagled.cpp
 )
 
-file (GLOB CLWEAPON_SRCS
+set (CLWEAPON_SRCS
 	./com_weapons.cpp
 	./cs_wpn/cs_baseentity.cpp
 	./cs_wpn/cs_weapons.cpp
 	./cs_wpn/bte_weapons.cpp
-	../dlls/wpn_shared/wpn_*.cpp
-	../dlls/wpn_shared/knife_*.cpp
+	../dlls/wpn_shared/wpn_ak47.cpp
+	../dlls/wpn_shared/wpn_aug.cpp
+	../dlls/wpn_shared/wpn_awp.cpp
+	../dlls/wpn_shared/wpn_c4.cpp
+	../dlls/wpn_shared/wpn_deagle.cpp
+	../dlls/wpn_shared/wpn_elite.cpp
+	../dlls/wpn_shared/wpn_famas.cpp
+	../dlls/wpn_shared/wpn_fiveseven.cpp
+	../dlls/wpn_shared/wpn_flashbang.cpp
+	../dlls/wpn_shared/wpn_g3sg1.cpp
+	../dlls/wpn_shared/wpn_galil.cpp
+	../dlls/wpn_shared/wpn_glock18.cpp
+	../dlls/wpn_shared/wpn_hegrenade.cpp
+	../dlls/wpn_shared/wpn_knife.cpp
+	../dlls/wpn_shared/wpn_m249.cpp
+	../dlls/wpn_shared/wpn_m3.cpp
+	../dlls/wpn_shared/wpn_m4a1.cpp
+	../dlls/wpn_shared/wpn_mac10.cpp
+	../dlls/wpn_shared/wpn_mp5navy.cpp
+	../dlls/wpn_shared/wpn_p228.cpp
+	../dlls/wpn_shared/wpn_p90.cpp
+	../dlls/wpn_shared/wpn_scout.cpp
+	../dlls/wpn_shared/wpn_sg550.cpp
+	../dlls/wpn_shared/wpn_sg552.cpp
+	../dlls/wpn_shared/wpn_smokegrenade.cpp
+	../dlls/wpn_shared/wpn_tmp.cpp
+	../dlls/wpn_shared/wpn_ump45.cpp
+	../dlls/wpn_shared/wpn_usp.cpp
+	../dlls/wpn_shared/wpn_xm1014.cpp
+
+	../dlls/wpn_shared/wpn_ak47l.cpp
+	../dlls/wpn_shared/wpn_mp7a1d.cpp
+	../dlls/wpn_shared/wpn_deagled.cpp
 )
 
 set (HUD_SRCS
@@ -114,13 +160,6 @@ set (HUD_SRCS
 	./hud/scenariostatus.cpp
 	./hud/zb2/zb2.cpp
 	./hud/zb2/zb2_skill.cpp
-	./hud/legacy/hud_radar_legacy.cpp
-	./hud/legacy/hud_scoreboard_legacy.cpp
-	./hud/modern/hud_radar_modern.cpp
-	./hud/zb3/zb3.cpp
-	./hud/zb3/zb3_morale.cpp
-	./hud/zb3/zb3_rage.cpp
-
 )
 
 set (STUDIORENDER_SRCS
@@ -209,6 +248,4 @@ add_definitions( -D_CS16CLIENT_ENABLE_GSRC_SUPPORT
 target_link_libraries( ${CLDLL_LIBRARY} ${CMAKE_DL_LIBS} )
 
 set_target_properties(${CLDLL_LIBRARY} PROPERTIES
-		PREFIX "" OUTPUT_NAME ${CLIENT_LIBRARY_NAME})
-
-install( TARGETS ${CLDLL_LIBRARY} DESTINATION ${CMAKE_INSTALL_PREFIX}/${GAMEDIR}/${CLIENT_INSTALL_DIR} )
+	PREFIX "" OUTPUT_NAME "client")

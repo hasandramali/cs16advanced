@@ -3,24 +3,23 @@
 
 #include "zb2.h"
 #include "gamemode/zb2/zb2_const.h"
-#include "hud_sub.h"
-#include "r_texture.h"
 
-class CHudZB2_Skill : public IBaseHudSub
+class CHudZB2_Skill : public CHudBase_ZB2
 {
 public:
-	CHudZB2_Skill(void);
+	int Init(void) override;
 	int VidInit(void) override;
 	void Reset(void) override;
 	int Draw(float time) override;
 	void Think(void) override;
+	void Shutdown(void) override;
 
 public:
 	// returns x
 	int DrawHealthRecoveryIcon(float time, int x, int y) const;
 	int DrawSkillBoard(float time, int x, int y) const;
+	
 	void DrawSkillTip(float time) const;
-	void DrawSkillBoardNew(float time) const;
 
 public:
 	void OnHealthRecovery();
@@ -29,16 +28,10 @@ public:
 
 protected:
 	int m_HUD_zombirecovery;
-
 	int m_HUD_zombieGKey;
 	int m_HUD_SkillIcons[MAX_ZOMBIE_SKILL];
 	int m_HUD_ClassIcons[MAX_ZOMBIE_CLASS];
-	UniqueTexture m_pTexture_SkillTips[MAX_ZOMBIE_SKILL];
-
-	UniqueTexture m_pTexture_skillslotkeybg;
-	UniqueTexture m_pTexture_skillslotbg;
-	UniqueTexture m_pTexture_NewSkillIcons[MAX_ZOMBIE_SKILL];
-	UniqueTexture m_pTexture_NewClassIcons[MAX_ZOMBIE_CLASS];
+	int m_iTexture_SkillIcons[MAX_ZOMBIE_SKILL];
 
 protected:
 	float m_flRecoveryBeginTime;
@@ -55,5 +48,9 @@ protected:
 	int DrawSkillIcon(float time, int x, int y, const ZombieSkillHudIcon &icon) const;
 	
 private:
-	struct Config;
+	static const char *ZOMBIE_SKILL_HUD_ICON[MAX_ZOMBIE_SKILL];
+	static const char *ZOMBIE_CLASS_HUD_ICON[MAX_ZOMBIE_CLASS];
+	static const char *ZOMBIE_ITEM_HUD_ICON[2][3];
+
+	static const char *ZOMBIE_SKILL_HUD_TIP[MAX_ZOMBIE_SKILL];
 };

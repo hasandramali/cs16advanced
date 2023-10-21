@@ -14,24 +14,25 @@
 class CSCOUT : public CBasePlayerWeapon
 {
 public:
-	void Spawn() override;
-	void Precache() override;
-	int GetItemInfo(ItemInfo *p) override;
-	BOOL Deploy() override;
-	float GetMaxSpeed() override;
-	int iItemSlot() override { return PRIMARY_WEAPON_SLOT; }
-	void PrimaryAttack() override;
-	void SecondaryAttack() override;
-	void Reload() override;
-	void WeaponIdle() override;
-	BOOL UseDecrement() override {
+	virtual void Spawn();
+	virtual void Precache();
+	virtual int GetItemInfo(ItemInfo *p);
+	virtual BOOL Deploy();
+	virtual float GetMaxSpeed();
+	virtual int iItemSlot() { return PRIMARY_WEAPON_SLOT; }
+	virtual void PrimaryAttack();
+	virtual void SecondaryAttack();
+	virtual void Reload();
+	virtual void WeaponIdle();
+	virtual BOOL UseDecrement()
+	{
 #ifdef CLIENT_WEAPONS
 		return TRUE;
 #else
 		return FALSE;
 #endif
 	}
-	KnockbackData GetKnockBackData() override { return { 3000.0f, 500.0f, 1200.0f, 800.0f, 0.3f }; }
+	virtual KnockbackData GetKnockBackData() override { return { 3000.0f, 500.0f, 1200.0f, 800.0f, 0.3f }; }
 
 public:
 	void SCOUTFire(float flSpread, float flCycleTime, BOOL fUseAutoAim);

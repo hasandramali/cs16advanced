@@ -147,12 +147,12 @@ void PlaceDirectory::Load(SteamFile *file)
 	}
 }
 
-const char *GetBspFilename(const char *navFilename)
+char *GetBspFilename(const char *navFilename)
 {
 	static char bspFilename[256];
 	Q_sprintf(bspFilename, "maps\\%s.bsp", STRING(gpGlobals->mapname));
 
-	size_t len = Q_strlen(bspFilename);
+	int len = Q_strlen(bspFilename);
 	if (len < 3)
 		return NULL;
 
@@ -671,7 +671,7 @@ bool SaveNavigationMap(const char *filename)
 
 	// get size of source bsp file and store it in the nav file
 	// so we can test if the bsp changed since the nav file was made
-	const char *bspFilename = GetBspFilename(filename);
+	char *bspFilename = GetBspFilename(filename);
 	if (bspFilename == NULL)
 		return false;
 
@@ -764,7 +764,7 @@ void SanityCheckNavigationMap(const char *mapName)
 		navFile.Read(&saveBspSize, sizeof(unsigned int));
 
 		// verify size
-		if (bspFilename[0])
+		if (bspFilename == NULL)
 		{
 			CONSOLE_ECHO("ERROR: No map corresponds to navigation file %s.\n", navFilename);
 			return;
@@ -831,7 +831,7 @@ NavErrorType LoadNavigationMap()
 		navFile.Read(&saveBspSize, sizeof(unsigned int));
 
 		// verify size
-		const char *bspFilename = GetBspFilename(filename);
+		char *bspFilename = GetBspFilename(filename);
 		if (bspFilename == NULL)
 			return NAV_INVALID_FILE;
 
@@ -840,7 +840,7 @@ NavErrorType LoadNavigationMap()
 		if (bspSize != saveBspSize)
 		{
 			// this nav file is out of date for this bsp file
-			const char *msg = "*** WARNING ***\nThe AI navigation data is from a different version of this map.\nThe CPU players will likely not perform well.\n";
+			char *msg = "*** WARNING ***\nThe AI navigation data is from a different version of this map.\nThe CPU players will likely not perform well.\n";
 			HintMessageToAllPlayers(msg);
 			CONSOLE_ECHO("\n-----------------\n");
 			CONSOLE_ECHO(msg);

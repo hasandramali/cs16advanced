@@ -27,20 +27,6 @@ public:
 };
 static CMultiplayGameMgrHelper g_GameMgrHelper;
 
-void CMod_DeathMatch::InstallPlayerModStrategy(CBasePlayer *player)
-{
-	class MyPlayerModStrategy : public CPlayerModStrategy_Default
-	{
-	public:
-		MyPlayerModStrategy(CBasePlayer *player) : CPlayerModStrategy_Default(player) {}
-		void CheckBuyZone() override { m_pPlayer->m_signals.Signal(SIGNAL_BUY); };
-		bool CanPlayerBuy(bool display) override { return true; }
-	};
-
-	std::unique_ptr<MyPlayerModStrategy> up(new MyPlayerModStrategy(player));
-	player->m_pModStrategy = std::move(up);
-}
-
 CMod_DeathMatch::CMod_DeathMatch()
 {
 	m_VoiceGameMgr.Init(&g_GameMgrHelper, gpGlobals->maxClients);
@@ -168,7 +154,7 @@ void CMod_DeathMatch::PlayerKilled(CBasePlayer *pVictim, entvars_t *pKiller, ent
 	else if (peKiller && peKiller->IsPlayer())
 	{
 		// if a player dies in a deathmatch game and the killer is a client, award the killer some points
-		CBasePlayer *killer = peKiller;
+		CBasePlayer *killer = GetClassPtr((CBasePlayer *)pKiller);
 		bool killedByFFA = false;
 
 		pKiller->frags += IPointsForKill(peKiller, pVictim);
@@ -233,7 +219,10 @@ int CMod_DeathMatch::PlayerRelationship(CBasePlayer *pPlayer, CBaseEntity *pTarg
 		return GR_NOTTEAMMATE;
 	}
 
-	if (pPlayer == pTarget)
+	CBasePlayer *player = GetClassPtr((CBasePlayer *)pPlayer->pev);
+	CBasePlayer *target = GetClassPtr((CBasePlayer *)pTarget->pev);
+
+	if (player == target)
 	{
 		return GR_TEAMMATE;
 	}

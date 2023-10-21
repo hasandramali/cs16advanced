@@ -6,55 +6,34 @@
 #endif
 
 #include "mods.h"
-#include "ruleof350.h"
 
-#include <memory>
-
-class CBaseEntity;
 class CBasePlayer; // player.h
 
-class IBaseMod : public CHalfLifeMultiplay, ruleof350::unique
+#pragma warning(push)
+#pragma warning(disable:4250) // fuck diamond inhertance warning
+
+class IBaseMod : public CHalfLifeMultiplay
 {
 public:
 	virtual DamageTrack_e DamageTrack() { return DT_NONE; }
-	virtual void InstallPlayerModStrategy(CBasePlayer *player);
-	virtual float GetAdjustedEntityDamage(CBaseEntity *victim, entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType) { return flDamage; }
-	virtual int MaxMoney() { return 16000; }
+	virtual bool FIgnoreBuyZone(CBasePlayer *player) { return false; }
+	virtual bool CanPlayerBuy(CBasePlayer *player, bool display) { return true; }
+	virtual int ComputeMaxAmmo(CBasePlayer *player, const char *szAmmoClassName, int iOriginalMax) { return iOriginalMax; }
 };
 
-template<class CBase = IBaseMod>
-class TBaseMod_RemoveObjects : public CBase
+class IBaseMod_RemoveObjects : virtual public IBaseMod
 {
-	friend BOOL _IBaseMod_RemoveObjects_IsAllowedToSpawn_impl(IBaseMod *mod, CBaseEntity *pEntity);
-	friend void _IBaseMod_RemoveObjects_CheckMapConditions_impl(IBaseMod *mod);
-
 public: // CHalfLifeMultiplay
-	BOOL IsAllowedToSpawn(CBaseEntity *pEntity) override
-	{
-		return _IBaseMod_RemoveObjects_IsAllowedToSpawn_impl(this, pEntity);
-	}
-	void CheckMapConditions() override
-	{
-		return _IBaseMod_RemoveObjects_CheckMapConditions_impl(this);
-	}
-
-protected:
-	using Base = TBaseMod_RemoveObjects;
+	BOOL IsAllowedToSpawn(CBaseEntity *pEntity) override;
+	void CheckMapConditions() override;
+	void UpdateGameMode(CBasePlayer *pPlayer) override;
 };
 
-template<class CBase = IBaseMod>
-class TBaseMod_RandomSpawn : public CBase
+class IBaseMod_RandomSpawn : virtual public IBaseMod
 {
-	friend edict_t *_IBaseMod_RandomSpawn_GetPlayerSpawnSpot_impl(IBaseMod *mod, CBasePlayer *pPlayer);
-
 public: // CHalfLifeMultiplay
-	edict_t *GetPlayerSpawnSpot(CBasePlayer *pPlayer) override
-	{
-		return _IBaseMod_RandomSpawn_GetPlayerSpawnSpot_impl(this, pPlayer);
-	}
+	edict_t *GetPlayerSpawnSpot(CBasePlayer *pPlayer) override;
 
-protected:
-	using Base = TBaseMod_RandomSpawn;
 };
 
 

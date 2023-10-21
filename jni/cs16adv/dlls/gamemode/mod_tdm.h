@@ -11,7 +11,7 @@ class CBaseEntity; // cbase.h
 class CBasePlayer; // player.h
 typedef struct entvars_s entvars_t; // progdefs.h
 
-class CMod_TeamDeathMatch : public TBaseMod_RemoveObjects<>
+class CMod_TeamDeathMatch : public IBaseMod_RemoveObjects
 {
 public:
 	CMod_TeamDeathMatch();
@@ -25,9 +25,7 @@ public: // CHalfLifeMultiplay
 	void CheckWinConditions() override {}
 	void PlayerKilled(CBasePlayer *pVictim, entvars_t *pKiller, entvars_t *pInflictor) override;
 	void PlayerSpawn(CBasePlayer *pPlayer) override;
-
-public:
-	void InstallPlayerModStrategy(CBasePlayer *player) override;
+	bool CanPlayerBuy(CBasePlayer *player, bool display) override { return true; }
 };
 
 #endif

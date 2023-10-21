@@ -11,32 +11,26 @@
 
 #include "player/csdm_randomspawn.h"
 
-void IBaseMod::InstallPlayerModStrategy(CBasePlayer *player)
-{
-	std::unique_ptr<CPlayerModStrategy_Default> up(new CPlayerModStrategy_Default(player));
-	player->m_pModStrategy = std::move(up);
-}
-
-void _IBaseMod_RemoveObjects_CheckMapConditions_impl(IBaseMod *mod)
+void IBaseMod_RemoveObjects::CheckMapConditions()
 {
 	//CHalfLifeMultiplay::CheckMapConditions();
 	
 	// Check to see if this map has a bomb target in it
-	mod->m_bMapHasBombTarget = false;
-	mod->m_bMapHasBombZone = false;
+	m_bMapHasBombTarget = false;
+	m_bMapHasBombZone = false;
 
 	// Check to see if this map has hostage rescue zones
-	mod->m_bMapHasRescueZone = false;
+	m_bMapHasRescueZone = false;
 
 	// See if the map has func_buyzone entities
 	// Used by CBasePlayer::HandleSignals() to support maps without these entities
-	mod->m_bMapHasBuyZone = (UTIL_FindEntityByClassname(NULL, "func_buyzone") != NULL);
+	m_bMapHasBuyZone = (UTIL_FindEntityByClassname(NULL, "func_buyzone") != NULL);
 
 	// GOOSEMAN : See if this map has func_escapezone entities
-	mod->m_bMapHasEscapeZone = false;
+	m_bMapHasEscapeZone = false;
 
 	// Check to see if this map has VIP safety zones
-	mod->m_iMapHasVIPSafetyZone = MAP_HAVE_VIP_SAFETYZONE_NO;
+	m_iMapHasVIPSafetyZone = MAP_HAVE_VIP_SAFETYZONE_NO;
 
 	// Hostage
 	/*CBaseEntity *hostage = nullptr;
@@ -47,27 +41,43 @@ void _IBaseMod_RemoveObjects_CheckMapConditions_impl(IBaseMod *mod)
 	}*/
 }
 
-BOOL _IBaseMod_RemoveObjects_IsAllowedToSpawn_impl(IBaseMod *mod, CBaseEntity *pEntity) {
-	if (!Q_strcmp(STRING(pEntity->pev->classname), "func_bomb_target") ||
-	    !Q_strcmp(STRING(pEntity->pev->classname), "info_bomb_target")) {
+BOOL IBaseMod_RemoveObjects::IsAllowedToSpawn(CBaseEntity *pEntity)
+{
+	if(!Q_strcmp(STRING(pEntity->pev->classname), "func_bomb_target") || !Q_strcmp(STRING(pEntity->pev->classname), "info_bomb_target"))
+	{ 
 		return FALSE;
 	}
-	if (!Q_strcmp(STRING(pEntity->pev->classname), "func_hostage_rescue")) {
+	if (!Q_strcmp(STRING(pEntity->pev->classname), "func_hostage_rescue"))
+	{
 		return FALSE;
 	}
-	if (!Q_strcmp(STRING(pEntity->pev->classname), "func_escapezone")) {
+	if (!Q_strcmp(STRING(pEntity->pev->classname), "func_escapezone"))
+	{
 		return FALSE;
 	}
-	if (!Q_strcmp(STRING(pEntity->pev->classname), "func_vip_safetyzone")) {
+	if (!Q_strcmp(STRING(pEntity->pev->classname), "func_vip_safetyzone"))
+	{
 		return FALSE;
 	}
-	if (!Q_strcmp(STRING(pEntity->pev->classname), "hostage_entity")) {
+	if (!Q_strcmp(STRING(pEntity->pev->classname), "hostage_entity"))
+	{
 		return FALSE;
 	}
 	return TRUE;
 }
 
-edict_t *_IBaseMod_RandomSpawn_GetPlayerSpawnSpot_impl(IBaseMod *mod, CBasePlayer *pPlayer)
+void IBaseMod_RemoveObjects::UpdateGameMode(CBasePlayer *pPlayer)
+{
+	MESSAGE_BEGIN(MSG_ONE, gmsgGameMode, NULL, pPlayer->edict());
+	WRITE_BYTE(MOD_NONE);
+	WRITE_BYTE(0); // Reserved. (weapon restriction? )
+	WRITE_BYTE(maxrounds.value); // MaxRound (mp_roundlimit)
+	WRITE_BYTE(0); // Reserved. (MaxTime?)
+	// CAN BE EXTENDED.
+	MESSAGE_END();
+}
+
+edict_t *IBaseMod_RandomSpawn::GetPlayerSpawnSpot(CBasePlayer *pPlayer)
 {
 	// completely rewrites it
 
@@ -93,7 +103,7 @@ edict_t *_IBaseMod_RandomSpawn_GetPlayerSpawnSpot_impl(IBaseMod *mod, CBasePlaye
 	pPlayer->pev->punchangle = g_vecZero;
 	pPlayer->pev->fixangle = 1;
 
-	if (mod->IsMultiplayer())
+	if (IsMultiplayer())
 	{
 		if (pentSpawnSpot->v.target)
 		{

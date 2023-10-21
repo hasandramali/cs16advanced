@@ -1377,7 +1377,7 @@ rgbdata_t *Image_LightGamma( rgbdata_t *pic, float texGamma )
 	if( pic->type != PF_RGBA_32 )
 		return pic;
 
-	texGamma = bound( MIN_GAMMA, texGamma, MAX_GAMMA );
+	texGamma = bound( 1.8f, texGamma, 3.0f );
 
 	// build the gamma table
 	for( i = 0; i < 256; i++ )

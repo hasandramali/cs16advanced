@@ -50,6 +50,13 @@ int g_iRShell, g_iPShell, g_iBlackSmoke, g_iShotgunShell;
 	DECLARE_EVENT(Vehicle);
 	DECLARE_EVENT(FireXM1014);
 	DECLARE_EVENT(TrainPitchAdjust);
+
+	DECLARE_EVENT(FireAK47L);
+	DECLARE_EVENT(FireDeagleD_Left);
+	DECLARE_EVENT(FireDeagleD_Right);
+	DECLARE_EVENT(FireMP7A1D_Left);
+	DECLARE_EVENT(FireMP7A1D_Right);
+
 /*
 ======================
 Game_HookEvents
@@ -95,4 +102,10 @@ void Game_HookEvents( void )
 	HOOK_EVENT( usp, FireUSP );
 	HOOK_EVENT( vehicle, Vehicle );
 	HOOK_EVENT( xm1014, FireXM1014 );
+
+	HOOK_EVENT(ak47l, FireAK47L);
+	HOOK_EVENT(deagled_left, FireDeagleD_Left);
+	HOOK_EVENT(deagled_right, FireDeagleD_Right);
+	HOOK_EVENT(mp7a1d_left, FireMP7A1D_Left);
+	HOOK_EVENT(mp7a1d_right, FireMP7A1D_Right);
 }

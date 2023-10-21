@@ -233,7 +233,7 @@ IMPLEMENT_SAVERESTORE(CBaseButton, CBaseToggle);
 
 void CBaseButton::Precache(void)
 {
-	const char *pszSound = nullptr;
+	char *pszSound;
 
 	if (FBitSet(pev->spawnflags, SF_BUTTON_SPARK_IF_OFF))
 	{
@@ -333,7 +333,7 @@ int CBaseButton::TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, flo
 	SetTouch(NULL);
 	m_hActivator = CBaseEntity::Instance(pevAttacker);
 
-	if (m_hActivator == nullptr)
+	if (m_hActivator == NULL)
 		return 0;
 
 	if (code == BUTTON_RETURN)
@@ -355,7 +355,7 @@ LINK_ENTITY_TO_CLASS(func_button, CBaseButton);
 
 void CBaseButton::Spawn(void)
 {
-	const char *pszSound = ButtonSound(m_sounds);
+	char *pszSound = ButtonSound(m_sounds);
 	PRECACHE_SOUND(pszSound);
 	pev->noise = ALLOC_STRING(pszSound);
 	Precache();
@@ -404,9 +404,9 @@ void CBaseButton::Spawn(void)
 	}
 }
 
-const char *ButtonSound(int sound)
+char *ButtonSound(int sound)
 {
-	const char *pszSound = nullptr;
+	char *pszSound;
 
 	switch (sound)
 	{
@@ -639,7 +639,7 @@ LINK_ENTITY_TO_CLASS(func_rot_button, CRotButton);
 
 void CRotButton::Spawn(void)
 {
-	const char *pszSound = ButtonSound(m_sounds);
+	char *pszSound = ButtonSound(m_sounds);
 	PRECACHE_SOUND(pszSound);
 	pev->noise = ALLOC_STRING(pszSound);
 	CBaseToggle::AxisDir(pev);
@@ -769,7 +769,7 @@ void CMomentaryRotButton::Spawn(void)
 	UTIL_SetOrigin(pev, pev->origin);
 	SET_MODEL(ENT(pev), STRING(pev->model));
 
-	const char *pszSound = ButtonSound(m_sounds);
+	char *pszSound = ButtonSound(m_sounds);
 	PRECACHE_SOUND(pszSound);
 	pev->noise = ALLOC_STRING(pszSound);
 	m_lastUsed = 0;

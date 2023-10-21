@@ -4,22 +4,10 @@
 #pragma once
 #endif
 
-class PlayerExtraHumanLevel_ZBS : public BasePlayerExtra
+typedef struct 
 {
-public:
-	PlayerExtraHumanLevel_ZBS(CBasePlayer *player);
-
-	float GetHealthBonus() const;
-	float GetAttackBonus() const;
-
-	void LevelUpHealth();
-	void LevelUpAttack();
-	void Reset();
-	void UpdateHUD() const;
-
-protected:
 	int m_iHealth;
 	int m_iAttack;
-};
+} HumanLevelStruct;
 
 #endif

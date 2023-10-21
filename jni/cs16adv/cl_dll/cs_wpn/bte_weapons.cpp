@@ -19,16 +19,10 @@
 /*
 	Weapon Registers
 */
-class CBTEClientWeapons::WeaponEntityFindList_t : public std::map<std::string, CBasePlayerWeapon *(*)()> {};
-
-auto CBTEClientWeapons::WeaponEntityFindList() -> WeaponEntityFindList_t &
-{
-	static WeaponEntityFindList_t x;
-	return x;
-}
+class CBTEClientWeapons::WeaponEntityFindList_t : public std::map<std::string, CBasePlayerWeapon *(*)()> {} CBTEClientWeapons::staticWeaponEntityFindList;
 void CBTEClientWeapons::AddToFindList(const char *name, CBasePlayerWeapon *(*pfn)())
 {
-	WeaponEntityFindList().emplace(name, pfn);
+	staticWeaponEntityFindList.emplace(name, pfn);
 }
 
 /*
@@ -42,7 +36,7 @@ extern CBasePlayerWeapon *g_pWpns[MAX_WEAPONS]; // cs_weapons.cpp
 
 void CBTEClientWeapons::PrepEntity(CBasePlayer *pWeaponOwner)
 {
-	for (auto &kv : WeaponEntityFindList())
+	for (auto &kv : staticWeaponEntityFindList)
 	{
 		CBasePlayerWeapon *pEntity = kv.second();
 
@@ -58,8 +52,8 @@ void CBTEClientWeapons::ActiveWeapon(const char *name)
 {
 	m_pActiveWeapon = nullptr;
 
-	auto iter = WeaponEntityFindList().find({ name });
-	if (iter != WeaponEntityFindList().end())
+	auto iter = staticWeaponEntityFindList.find({ name });
+	if (iter != staticWeaponEntityFindList.end())
 	{
 		m_pActiveWeapon = iter->second();
 

@@ -14,20 +14,21 @@ class CKnife_Zombi : public CKnife
 {
 public:
 	void Precache() override;
-	int GetItemInfo(ItemInfo *p) override;
-	BOOL Deploy() override;
-	float GetMaxSpeed() override { return m_fMaxSpeed; }
-	int iItemSlot() override { return KNIFE_SLOT; }
-	void PrimaryAttack() override;
-	void SecondaryAttack() override;
-	BOOL UseDecrement() override {
+	virtual int GetItemInfo(ItemInfo *p);
+	virtual BOOL Deploy();
+	virtual float GetMaxSpeed() { return m_fMaxSpeed; }
+	virtual int iItemSlot() { return KNIFE_SLOT; }
+	virtual void PrimaryAttack();
+	virtual void SecondaryAttack();
+	virtual BOOL UseDecrement()
+	{
 #ifdef CLIENT_WEAPONS
 		return TRUE;
 #else
 		return FALSE;
 #endif
 	}
-	void WeaponIdle() override;
+	virtual void WeaponIdle();
 
 public:
 	int Stab(int fFirst);

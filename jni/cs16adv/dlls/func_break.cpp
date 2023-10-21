@@ -128,7 +128,7 @@ const char *CBreakable::pSoundsGlass[] =
 	"debris/glass3.wav"
 };
 
-const char *CPushable::m_soundNames[] =
+char *CPushable::m_soundNames[] =
 {
 	"debris/pushbox1.wav",
 	"debris/pushbox2.wav",
@@ -194,7 +194,7 @@ void CBreakable::KeyValue(KeyValueData *pkvd)
 	}
 	else if (FStrEq(pkvd->szKeyName, "spawnobject"))
 	{
-		auto object = static_cast<size_t>(Q_atoi(pkvd->szValue));
+		int object = Q_atoi(pkvd->szValue);
 		if (object > 0 && object < ARRAYSIZE(pSpawnObjects))
 		{
 			m_iszSpawnObject = MAKE_STRING(pSpawnObjects[object]);
@@ -416,8 +416,6 @@ void CBreakable::Precache()
 
 		PRECACHE_SOUND("debris/bustceiling.wav");
 		break;
-	default:
-		break;
 	}
 
 	MaterialSoundPrecache(m_Material);
@@ -443,7 +441,7 @@ void CBreakable::DamageSound()
 {
 	int pitch;
 	float fvol;
-	const char *rgpsz[6];
+	char *rgpsz[6];
 	int i;
 	int material = m_Material;
 
@@ -614,9 +612,6 @@ void CBreakable::TraceAttack(entvars_t *pevAttacker, float flDamage, Vector vecD
 				UTIL_Ricochet(ptr->vecEndPos, RANDOM_FLOAT(0.5, 1.5));
 				break;
 			}
-
-			default:
-				break;
 		}
 	}
 
@@ -803,9 +798,6 @@ void CBreakable::Die()
 
 	case matCeilingTile:
 		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "debris/bustceiling.wav", fvol, ATTN_NORM, 0, pitch);
-		break;
-
-	default:
 		break;
 	}
 

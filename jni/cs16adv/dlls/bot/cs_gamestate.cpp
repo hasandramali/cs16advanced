@@ -302,8 +302,6 @@ const Vector *CSGameState::GetBombPosition() const
 
 			return NULL;
 		}
-		default:
-			break;
 	}
 
 	return NULL;

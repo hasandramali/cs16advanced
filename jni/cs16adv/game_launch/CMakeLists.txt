@@ -23,7 +23,7 @@
 cmake_minimum_required(VERSION 2.6.0)
 project(XASH_LAUNCHER C)
 
-set(XASH_LAUNCHER game_launch)
+set(XASH_LAUNCHER xash3d)
 file(GLOB XASH_LAUNCHER_SOURCES *.c)
 if(WIN32)
 	list(APPEND XASH_LAUNCHER_SOURCES game.rc)
@@ -31,6 +31,7 @@ endif()
 
 include_directories(
 	.
+	../SDL2/include
 )
 
 add_executable(${XASH_LAUNCHER} WIN32 ${XASH_LAUNCHER_SOURCES})
@@ -40,22 +41,14 @@ add_executable(${XASH_LAUNCHER} WIN32 ${XASH_LAUNCHER_SOURCES})
 # Otherwise it prints errors in stdin.
 if(XASH_SDL AND NOT WIN32)
 	set(SDL2_BUILDING_EXECUTABLE YES) # Link SDL2main also
-	find_package(SDL2 REQUIRED)
-	target_link_libraries(${XASH_LAUNCHER} ${SDL2_LIBRARY})
-	include_directories(${SDL2_INCLUDE_DIR})
+	target_link_libraries(${XASH_LAUNCHER} SDL2)
 	add_definitions(-DXASH_SDL)
 endif()
 
 if(WIN32)
 	set_target_properties(${XASH_LAUNCHER} PROPERTIES
-		OUTPUT_NAME csmoe_win32) # Change name to your gamedir, if you building a standalone game
-elseif(APPLE)
-	set_target_properties(${XASH_LAUNCHER} PROPERTIES
-			OUTPUT_NAME csmoe_macos) # Change name to your gamedir, if you building a standalone game
-elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
-	set_target_properties(${XASH_LAUNCHER} PROPERTIES
-		OUTPUT_NAME csmoe_linux) # Change name to your gamedir, if you building a standalone game
+		OUTPUT_NAME csbtem_win32) # Change name to your gamedir, if you building a standalone game
 endif()
 
 target_link_libraries(${XASH_LAUNCHER} ${CMAKE_DL_LIBS})
-install( TARGETS ${XASH_LAUNCHER} DESTINATION ${CMAKE_INSTALL_PREFIX} )
+

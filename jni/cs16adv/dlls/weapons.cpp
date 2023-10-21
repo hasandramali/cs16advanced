@@ -446,23 +446,6 @@ void W_Precache()
 	UTIL_PrecacheOther("ammo_46mm");
 	UTIL_PrecacheOtherWeapon("weapon_ak47l");
 	UTIL_PrecacheOtherWeapon("weapon_deagled");
-	UTIL_PrecacheOtherWeapon("weapon_wa2000");
-	UTIL_PrecacheOtherWeapon("weapon_m95");
-	UTIL_PrecacheOtherWeapon("weapon_as50");
-	UTIL_PrecacheOther("ammo_50bmg");
-	UTIL_PrecacheOtherWeapon("weapon_kriss");
-	UTIL_PrecacheOtherWeapon("weapon_thompson");
-	UTIL_PrecacheOtherWeapon("weapon_m1887");
-	UTIL_PrecacheOtherWeapon("weapon_tar21");
-	UTIL_PrecacheOtherWeapon("weapon_xm8c");
-	UTIL_PrecacheOtherWeapon("weapon_xm8s");
-	UTIL_PrecacheOtherWeapon("weapon_scarl");
-	UTIL_PrecacheOtherWeapon("weapon_scarh");
-
-	UTIL_PrecacheOtherWeapon("weapon_cannon");
-	UTIL_PrecacheOther("ammo_cannon");
-	UTIL_PrecacheOtherWeapon("weapon_gungnir");
-	UTIL_PrecacheOther("ammo_gungnir");
 
 	if (g_pGameRules->IsDeathmatch())
 	{
@@ -1670,7 +1653,7 @@ void CWeaponBox::BombThink()
 		if (!pEntity->IsPlayer() || pEntity->IsDormant())
 			continue;
 
-		CBasePlayer *pTempPlayer = GetClassPtr<CBasePlayer>(pEntity->pev);
+		CBasePlayer *pTempPlayer = GetClassPtr((CBasePlayer *)pEntity->pev);
 
 		if (pTempPlayer->pev->deadflag == DEAD_NO && pTempPlayer->m_iTeam == TERRORIST)
 		{
@@ -1824,7 +1807,7 @@ void CWeaponBox::Touch(CBaseEntity *pOther)
 					if (pEntity->pev->flags == FL_DORMANT)
 						continue;
 
-					CBasePlayer *pTempPlayer = GetClassPtr<CBasePlayer>(pEntity->pev);
+					CBasePlayer *pTempPlayer = GetClassPtr((CBasePlayer *)pEntity->pev);
 
 					if (pTempPlayer->pev->deadflag == DEAD_NO && pTempPlayer->m_iTeam == TERRORIST)
 					{
@@ -1877,8 +1860,6 @@ void CWeaponBox::Touch(CBaseEntity *pOther)
 						grenadeName = "weapon_flashbang";
 						maxGrenades = 2;
 						break;
-					default:
-						break;
 					}
 
 					if (playerGrenades < maxGrenades && grenadeName != NULL)
@@ -1904,18 +1885,6 @@ void CWeaponBox::Touch(CBaseEntity *pOther)
 				{
 					pItem->AttachToPlayer(pPlayer);
 					bEmitSound = true;
-				}
-
-				// also gets the linked one
-				if (pItem->m_pLink)
-				{
-					CBasePlayerItem *pLinkItem = dynamic_cast<CBasePlayerItem *>(pItem->m_pLink);
-
-					if (pPlayer->AddPlayerItem(pLinkItem))
-					{
-						pLinkItem->AttachToPlayer(pPlayer);
-						bEmitSound = true;
-					}
 				}
 
 				// unlink this weapon from the box
@@ -2004,7 +1973,7 @@ BOOL CWeaponBox::PackWeapon(CBasePlayerItem *pWeapon)
 	pWeapon->pev->solid = SOLID_NOT;
 	pWeapon->pev->effects = EF_NODRAW;
 	pWeapon->pev->modelindex = 0;
-	pWeapon->pev->model = (int)NULL;
+	pWeapon->pev->model = NULL;
 	pWeapon->pev->owner = ENT(pev);
 	pWeapon->SetThink(NULL);
 	pWeapon->SetTouch(NULL);
@@ -2033,7 +2002,7 @@ int CWeaponBox::PackAmmo(int iszName, int iCount)
 	return FALSE;
 }
 
-int CWeaponBox::GiveAmmo(int iCount, const char *szName, int iMax, int *pIndex)
+int CWeaponBox::GiveAmmo(int iCount, char *szName, int iMax, int *pIndex)
 {
 	int i;
 

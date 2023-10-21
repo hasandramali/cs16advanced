@@ -12,124 +12,8 @@
 #include "zbs/zbs_const.h"
 #include "zbs/monster_entity.h"
 #include "player/csdm_randomspawn.h"
-#include "zbs/monster_manager.h"
-
-#include "player/player_human_level.h"
 
 #include <algorithm>
-
-class PlayerModStrategy_ZBS : public CPlayerModStrategy_Default
-{
-public:
-	PlayerModStrategy_ZBS(CBasePlayer *player, CMod_ZombieScenario *mp) : CPlayerModStrategy_Default(player), m_HumanLevel(player)
-	{
-		m_listenerAdjustDamage = mp->m_eventAdjustDamage.subscribe(
-			[=](CBasePlayer *attacker, float &out) 
-			{ 
-				if(attacker == m_pPlayer)
-					out *= m_HumanLevel.GetAttackBonus(); 
-			}
-		);
-		m_listenerMonsterKilled = mp->m_eventMonsterKilled.subscribe(
-			[=](CMonster *victim, CBaseEntity *attacker)
-			{
-				if (attacker == m_pPlayer)
-				{
-					if (victim->m_iKillBonusFrags)
-						m_pPlayer->AddPoints(victim->m_iKillBonusFrags, FALSE);
-					if (victim->m_iKillBonusMoney)
-						m_pPlayer->AddAccount(victim->m_iKillBonusMoney);
-
-					MESSAGE_BEGIN(MSG_ONE, gmsgZBSTip, NULL, m_pPlayer->pev);
-					WRITE_BYTE(ZBS_TIP_KILL);
-					MESSAGE_END();
-				}
-			}
-		);
-	}
-	int ComputeMaxAmmo(const char *szAmmoClassName, int iOriginalMax) override { return 600; }
-	bool CanPlayerBuy(bool display) override
-	{
-		// is the player alive?
-		if (m_pPlayer->pev->deadflag != DEAD_NO)
-			return false;
-
-		return true;
-	}
-
-	void OnSpawn() override
-	{
-		m_pPlayer->pev->health += m_HumanLevel.GetHealthBonus();
-	}
-	bool ClientCommand(const char *pcmd) override
-	{
-		if (FStrEq(pcmd, "zbs_hp_up"))
-		{
-			m_HumanLevel.LevelUpHealth();
-			return true;
-		}
-		else if (FStrEq(pcmd, "zbs_atk_up"))
-		{
-			m_HumanLevel.LevelUpAttack();
-			return true;
-		}
-		return CPlayerModStrategy_Default::ClientCommand(pcmd);
-	}
-	void OnInitHUD() override
-	{
-		m_HumanLevel.UpdateHUD();
-	}
-
-protected:
-	EventListener m_listenerAdjustDamage;
-	EventListener m_listenerMonsterKilled;
-	PlayerExtraHumanLevel_ZBS m_HumanLevel;
-
-};
-
-class CMonsterModStrategy_ZBS : public CMonsterModStrategy_Default
-{
-public:
-	CMonsterModStrategy_ZBS(CMonster *p, CMod_ZombieScenario * pGameRules) : CMonsterModStrategy_Default(p), mp(pGameRules)
-	{
-
-	}
-
-	void OnKilled(entvars_t *pevKiller, int iGib) override
-	{
-		CMonsterModStrategy_Default::OnKilled(pevKiller, iGib);
-		if (pevKiller)
-		{
-			CBaseEntity *pKiller = CBaseEntity::Instance(pevKiller);
-			mp->m_eventMonsterKilled.dispatch(m_pMonster, pKiller);
-		}
-	}
-
-protected:
-	CMod_ZombieScenario * const mp;
-};
-
-void CMod_ZombieScenario::InstallPlayerModStrategy(CBasePlayer *player)
-{
-	player->m_pModStrategy.reset(new PlayerModStrategy_ZBS(player, this));
-}
-
-float CMod_ZombieScenario::GetAdjustedEntityDamage(CBaseEntity *victim, entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType)
-{
-	flDamage = Base::GetAdjustedEntityDamage(victim, pevInflictor, pevAttacker, flDamage, bitsDamageType);
-
-	if(pevAttacker)
-	{
-		CBaseEntity *pAttackingEnt = CBaseEntity::Instance(pevAttacker);
-		if (pAttackingEnt->IsPlayer())
-		{
-			CBasePlayer *pAttacker = static_cast<CBasePlayer *>(pAttackingEnt);
-			m_eventAdjustDamage.dispatch(pAttacker, flDamage);
-		}
-	}
-		
-	return flDamage;
-}
 
 CMod_ZombieScenario::CMod_ZombieScenario()
 {
@@ -150,6 +34,12 @@ void CMod_ZombieScenario::UpdateGameMode(CBasePlayer *pPlayer)
 	MESSAGE_END();
 }
 
+void CMod_ZombieScenario::InitHUD(CBasePlayer *pPlayer)
+{
+	pPlayer->HumanLevel_UpdateHUD();
+	return IBaseMod::InitHUD(pPlayer);
+}
+
 void CMod_ZombieScenario::CheckMapConditions()
 {
 	m_vecZombieSpawns.clear();
@@ -162,7 +52,24 @@ void CMod_ZombieScenario::CheckMapConditions()
 	// hook from RestartRound()
 	m_iRoundTimeSecs = m_iIntroRoundTime = 20 + 2; // keep it from ReadMultiplayCvars
 
-	return Base::CheckMapConditions();
+	return IBaseMod_RemoveObjects::CheckMapConditions();
+}
+
+bool CMod_ZombieScenario::CanPlayerBuy(CBasePlayer *player, bool display)
+{
+	// is the player alive?
+	if (player->pev->deadflag != DEAD_NO)
+	{
+		return false;
+	}
+
+	// is the player in a buy zone?
+	if (!(player->m_signals.GetState() & SIGNAL_BUY))
+	{
+		return false;
+	}
+
+	return true;
 }
 
 void CMod_ZombieScenario::RestartRound()
@@ -174,6 +81,7 @@ void CMod_ZombieScenario::RestartRound()
 void CMod_ZombieScenario::PlayerSpawn(CBasePlayer *pPlayer)
 {
 	IBaseMod::PlayerSpawn(pPlayer);
+	pPlayer->pev->health += pPlayer->HumanLevel_GetHealthBonus();
 }
 
 void CMod_ZombieScenario::WaitingSound()
@@ -286,6 +194,15 @@ void CMod_ZombieScenario::Think()
 		HumanWin();
 }
 
+BOOL CMod_ZombieScenario::ClientConnected(edict_t *pEntity, const char *pszName, const char *pszAddress, char *szRejectReason)
+{
+	CBasePlayer *pPlayer = (CBasePlayer *)CBaseEntity::Instance(pEntity);
+	if (pPlayer != NULL)
+		pPlayer->HumanLevel_Reset();
+
+	return IBaseMod::ClientConnected(pEntity, pszName, pszAddress, szRejectReason);
+}
+
 void CMod_ZombieScenario::CheckWinConditions()
 {
 	// If a winner has already been determined and game of started.. then get the heck out of here
@@ -358,7 +275,11 @@ void CMod_ZombieScenario::RoundStart()
 
 BOOL CMod_ZombieScenario::FRoundStarted()
 {
-	return !IsFreezePeriod();
+	int iCountDown = gpGlobals->time - m_fRoundCount;
+	if (iCountDown <= 20)
+		return false;
+
+	return true;
 }
 
 CZombieSpawn *CMod_ZombieScenario::SelectZombieSpawnPoint()
@@ -371,12 +292,17 @@ CZombieSpawn *CMod_ZombieScenario::SelectZombieSpawnPoint()
 
 CBaseEntity *CMod_ZombieScenario::MakeZombieNPC()
 {
-	CMonster *monster = GetClassPtr<CMonster>(nullptr);
+	edict_t *pent = CREATE_NAMED_ENTITY(MAKE_STRING("monster_entity"));
 
+	if (FNullEnt(pent))
+	{
+		ALERT(at_console, "NULL Ent in MakeZombieNPC()!\n");
+		return nullptr;
+	}
+
+	CMonster *monster = dynamic_cast<CMonster *>(CBaseEntity::Instance(pent));
 	if (!monster)
 		return nullptr;
-
-	edict_t *pent = monster->edict();
 
 	CZombieSpawn *sp = SelectZombieSpawnPoint();
 	if (sp)
@@ -406,8 +332,6 @@ CBaseEntity *CMod_ZombieScenario::MakeZombieNPC()
 		SET_MODEL(monster->edict(), "models/player/zombi_host/zombi_host.mdl");
 		UTIL_SetSize(monster->pev, VEC_HULL_MIN, VEC_HULL_MAX);
 	}
-
-	monster->m_pMonsterStrategy.reset(new CMonsterModStrategy_ZBS(monster, this));
 
 	return monster;
 }

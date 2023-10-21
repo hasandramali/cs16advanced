@@ -1,24 +1,20 @@
 
 #pragma once
 
-#include "hud_sub.h"
-#include "r_texture.h"
-
-class CHudZBSScoreBoard : public IBaseHudSub
+class CHudZBSScoreBoard : public CHudBase_ZBS
 {
 public:
+	int Init(void) override;
 	int VidInit(void) override;
 	int Draw(float time) override;
+	void Shutdown(void) override;
 
 protected:
-	UniqueTexture m_pBackground;
+	int m_iBackground;
 	wrect_t m_rcTeamnumber[10];
-	UniqueTexture m_pTeamnumber;
+	int m_iTeamnumber;
 	wrect_t m_rcSelfnumber[10];
-	UniqueTexture m_pSelfnumber;
+	int m_iSelfnumber;
 	wrect_t m_rcToprecord[10];
-	UniqueTexture m_pToprecord;
-	int m_iSelfKills;
-	float m_iSelfnumberScale;
-	float m_flSelfnumberScaleTime;
+	int m_iToprecord;
 };

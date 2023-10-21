@@ -13,24 +13,25 @@
 class CKnife : public CBasePlayerWeapon
 {
 public:
-	void Spawn() override;
-	void Precache() override;
-	int GetItemInfo(ItemInfo *p) override;
-	BOOL CanDrop() override { return FALSE; }
-	BOOL Deploy() override;
-	void Holster(int skiplocal) override;
-	float GetMaxSpeed() override { return m_fMaxSpeed; }
-	int iItemSlot() override { return KNIFE_SLOT; }
-	void PrimaryAttack() override;
-	void SecondaryAttack() override;
-	BOOL UseDecrement() override {
+	virtual void Spawn();
+	virtual void Precache();
+	virtual int GetItemInfo(ItemInfo *p);
+	virtual BOOL CanDrop() { return FALSE; }
+	virtual BOOL Deploy();
+	virtual void Holster(int skiplocal);
+	virtual float GetMaxSpeed() { return m_fMaxSpeed; }
+	virtual int iItemSlot() { return KNIFE_SLOT; }
+	virtual void PrimaryAttack();
+	virtual void SecondaryAttack();
+	virtual BOOL UseDecrement()
+	{
 #ifdef CLIENT_WEAPONS
 		return TRUE;
 #else
 		return FALSE;
 #endif
 	}
-	void WeaponIdle() override;
+	virtual void WeaponIdle();
 
 public:
 	void EXPORT SwingAgain();

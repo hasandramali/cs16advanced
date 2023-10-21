@@ -152,7 +152,6 @@ enum VGUIMenuSlot
 	VGUI_MenuSlot_Buy_PrimAmmo,
 	VGUI_MenuSlot_Buy_SecAmmo,
 	VGUI_MenuSlot_Buy_Item,
-	VGUI_MenuSlot_Zbs_Upgrade,
 };
 
 #define MENU_TEAM 2

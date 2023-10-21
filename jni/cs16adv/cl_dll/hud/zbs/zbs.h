@@ -1,6 +1,11 @@
 
 #pragma once
 
+class CHudBase_ZBS : public CHudBase
+{
+	friend class CHudZBS;
+};
+
 class CHudZBS : public CHudBase
 {
 public:

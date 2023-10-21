@@ -17,13 +17,13 @@ void CMod_None::CheckMapConditions()
 	if (m_bMapHasBombZone)
 	{
 		CBaseEntity *pEntity = nullptr;
-
-		while ((pEntity = UTIL_FindEntityByClassname(pEntity, "func_bomb_target")))
+		
+		while (pEntity = UTIL_FindEntityByClassname(pEntity, "func_bomb_target"))
 		{
 			m_mapBombZones.emplace_back(pEntity, VecBModelOrigin(pEntity->pev));
 		}
 		// pEntity = nullptr;
-		while ((pEntity = UTIL_FindEntityByClassname(pEntity, "info_bomb_target")))
+		while (pEntity = UTIL_FindEntityByClassname(pEntity, "info_bomb_target"))
 		{
 			m_mapBombZones.emplace_back(pEntity, pEntity->pev->origin);
 		}
@@ -53,3 +53,67 @@ void CMod_None::UpdateGameMode(CBasePlayer *pPlayer)
 	MESSAGE_END();
 }
 
+bool CMod_None::CanPlayerBuy(CBasePlayer *player, bool display)
+{
+	// is the player alive?
+	if (player->pev->deadflag != DEAD_NO)
+	{
+		return false;
+	}
+
+	// is the player in a buy zone?
+	if (!(player->m_signals.GetState() & SIGNAL_BUY))
+	{
+		return false;
+	}
+
+	int buyTime = (int)(CVAR_GET_FLOAT("mp_buytime") * 60.0f);
+
+	if (buyTime < MIN_BUY_TIME)
+	{
+		buyTime = MIN_BUY_TIME;
+		CVAR_SET_FLOAT("mp_buytime", (MIN_BUY_TIME / 60.0f));
+	}
+
+	if (gpGlobals->time - m_fRoundCount > buyTime)
+	{
+		if (display)
+		{
+			ClientPrint(player->pev, HUD_PRINTCENTER, "#Cant_buy", UTIL_dtos1(buyTime));
+		}
+
+		return false;
+	}
+
+	if (player->m_bIsVIP)
+	{
+		if (display)
+		{
+			ClientPrint(player->pev, HUD_PRINTCENTER, "#VIP_cant_buy");
+		}
+
+		return false;
+	}
+
+	if (m_bCTCantBuy && player->m_iTeam == CT)
+	{
+		if (display)
+		{
+			ClientPrint(player->pev, HUD_PRINTCENTER, "#CT_cant_buy");
+		}
+
+		return false;
+	}
+
+	if (m_bTCantBuy && player->m_iTeam == TERRORIST)
+	{
+		if (display)
+		{
+			ClientPrint(player->pev, HUD_PRINTCENTER, "#Terrorist_cant_buy");
+		}
+
+		return false;
+	}
+
+	return true;
+}
